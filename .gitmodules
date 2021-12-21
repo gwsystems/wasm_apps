@@ -1,0 +1,20 @@
+[submodule "gocr"]
+	path = gocr
+	url = https://github.com/gwsystems/gocr.git
+	branch = wasi
+[submodule "TinyEKF"]
+	path = TinyEKF
+	url = https://github.com/gwsystems/TinyEKF.git
+	branch = wasi
+[submodule "CMSIS_5_NN"]
+	path = CMSIS_5_NN
+	url = https://github.com/gwsystems/CMSIS_5_NN.git
+	branch = wasi
+[submodule "sod"]
+	path = sod
+	url = https://github.com/gwsystems/sod.git
+	branch = wasi
+[submodule "speechtotext"]
+	path = speechtotext
+	url = https://github.com/gwsystems/speechtotext.git
+	branch = sledge
