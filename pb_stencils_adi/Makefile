@@ -5,15 +5,15 @@ WASMLINKFLAGS=-Wl,-z,stack-size=524288,--allow-undefined,--threads=1
 WASMCFLAGS=${WASMLINKFLAGS} ${OPTFLAGS}
 
 .PHONY: all
-all: bin/pb_la_blas_gemm.wasm
+all: bin/pb_stencils_adi.wasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
 
-bin/pb_la_blas_gemm.wasm: *.c
+bin/pb_stencils_adi.wasm: *.c
 	@mkdir -p bin
 	${WASMCC} ${WASMCFLAGS} $^ -o $@
 
-run: bin/pb_la_blas_gemm.wasm
-	wasmtime bin/pb_la_blas_gemm.wasm
+run: bin/pb_stencils_adi.wasm
+	wasmtime bin/pb_stencils_adi.wasm
