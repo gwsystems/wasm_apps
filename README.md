@@ -1,36 +1,36 @@
-| App                       | WASI-SDK Builds                              | Wasmtime Runs                          | Native Builds | Native Runs | Functionally Correct |
-| ------------------------- | -------------------------------------------- | -------------------------------------- | ------------- | ----------- | -------------------- |
-| app_nn                    | fatal error: 'arm_math.h' file not found     | No                                     | No            | No          | Unknown              |
-| app_pid                   | Yes                                          | Yes                                    | Yes           | Yes         | Unknown              |
-| app_tinycrypt             | Yes                                          | Yes                                    | Yes           | Yes         | Yes                  |
-| app_v9                    | Yes                                          | Yes                                    | Yes           | Yes         | Yes                  |
-| CMSIS_5_NN                | Yes                                          | Yes                                    | Yes           | Yes         | Yes                  |
-| custom_binarytrees        | Yes                                          | Yes                                    | Yes           | Yes         | Yes                  |
-| custom_function_pointers  | Yes                                          | Yes                                    | Yes           | Yes         | Yes                  |
-| custom_libjpeg            | Error: tmpfile is not defined on WASI        | No                                     | Yes           | Yes         | Unknown              |
-| custom_matrix_multiply    | Yes                                          | Yes                                    | Yes           | Yes         | Yes                  |
-| custom_memcmp             | Yes                                          | Yes                                    | Yes           | Yes         | Unknown              |
-| custom_sqlite             | error: use of undeclared identifier 'fchmod' | No                                     | Yes           | Yes         | Unknown              |
-| echo                      | Yes                                          | Yes                                    | Yes           | Yes         | Yes                  |
-| empty                     | Yes                                          | Yes                                    | Yes           | Yes         | Yes                  |
-| exit                      | Yes                                          | Yes                                    | Yes           | Yes         | Yes                  |
-| fibonacci                 | Yes                                          | Yes                                    | Yes           | Yes         | Yes                  |
-| gocr                      | Yes                                          | wasm trap: indirect call type mismatch | Yes           | Yes         | Yes                  |
-| mi_adpcm                  | Yes                                          | Yes                                    | Yes           | Yes         | Unknown              | 
-| mi_basic_math             |
-| mi_bitcount               |
-| mi_bitcount_cm            |
-| mi_blwofist               |
-| mi_crc                    |
-| mi_dijkstra               |
-| mi_dijkstra_cm            |
-| mi_fft                    |
-| mi_fft_cm                 |
-| mi_gsm                    |
-| mi_mandelbrot             |
-| mi_mandelbrot_cm          |
-| mi_patricia               |
-| mi_patricia_cm            |
+| App                       | WASI-SDK Builds                                    | Wasmtime Runs                                     | Native Builds | Native Runs | Functionally Correct     |
+| ------------------------- | -------------------------------------------------- | ------------------------------------------------- | ------------- | ----------- | ------------------------ |
+| app_nn                    | fatal error: 'arm_math.h' file not found           | No                                                | No            | No          | Unknown                  |
+| app_pid                   | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                  |
+| app_tinycrypt             | Yes                                                | Yes                                               | Yes           | Yes         | Yes                      |
+| app_v9                    | Yes                                                | Yes                                               | Yes           | Yes         | Yes                      |
+| CMSIS_5_NN                | Yes                                                | Yes                                               | Yes           | Yes         | Yes                      |
+| custom_binarytrees        | Yes                                                | Yes                                               | Yes           | Yes         | Yes                      |
+| custom_function_pointers  | Yes                                                | Yes                                               | Yes           | Yes         | Yes                      |
+| custom_libjpeg            | Error: tmpfile is not defined on WASI              | No                                                | Yes           | Yes         | Unknown                  |
+| custom_matrix_multiply    | Yes                                                | Yes                                               | Yes           | Yes         | Yes                      |
+| custom_memcmp             | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                  |
+| custom_sqlite             | error: use of undeclared identifier 'fchmod'       | No                                                | Yes           | Yes         | Unknown                  |
+| echo                      | Yes                                                | Yes                                               | Yes           | Yes         | Yes                      |
+| empty                     | Yes                                                | Yes                                               | Yes           | Yes         | Yes                      |
+| exit                      | Yes                                                | Yes                                               | Yes           | Yes         | Yes                      |
+| fibonacci                 | Yes                                                | Yes                                               | Yes           | Yes         | Yes                      |
+| gocr                      | Yes                                                | wasm trap: indirect call type mismatch            | Yes           | Yes         | Yes                      |
+| mi_adpcm                  | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                  |
+| mi_basic_math             | Yes                                                | Yes                                               | Yes           | Yes         | Yes                      |
+| mi_bitcount               | Yes                                                | Yes                                               | Yes           | Yes         | Unknown. Results Differ! |
+| mi_bitcount_cm            | Yes                                                | Yes                                               | Yes           | Yes         | Unknown. Results Differ! |
+| mi_blowfish               | Yes                                                | exit with invalid exit status outside of [0..126) | Yes           | Yes         | No                       |
+| mi_crc                    | Yes                                                | Yes                                               | Yes           | Yes         | Yes                      |
+| mi_dijkstra               | Yes                                                | Yes                                               | Yes           | Yes         | Yes                      |
+| mi_dijkstra_cm            | Yes                                                | Yes                                               | Yes           | Yes         | Yes                      |
+| mi_fft                    | Yes                                                | Yes                                               | Yes           | Yes         | Unknown. Results Differ! |
+| mi_fft_cm                 | Yes                                                | Yes                                               | Yes           | Yes         | Unknown. Results Differ! |
+| mi_gsm                    | unknown import: `env::fchmod` has not been defined | No                                                | Yes           | Yes         | Unknown. Binary output   |
+| mi_mandelbrot             | Yes                                                | Yes                                               | Yes           | Yes         | Unknown. Binary output   |
+| mi_mandelbrot_cm          | Yes                                                | Yes                                               | Yes           | Yes         | Unknown. Binary output   |
+| mi_patricia               | fatal error: 'sys/wait.h' file not found           | No                                                | Yes           | Yes         | Unknown                  |
+| mi_patricia_cm            | fatal error: 'sys/wait.h' file not found           | No                                                | Yes           | Yes         | Unknown                  |
 | mi_pgp                    |
 | mi_qsort                  |
 | mi_qsort_cm               |
