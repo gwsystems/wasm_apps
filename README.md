@@ -38,15 +38,15 @@
 | mi_sha                    | Yes                                                | Yes                                               | Yes           | Yes         | Different. 32-bit vs 64-bit? |
 | mi_stringsearch           | Yes                                                | Yes                                               | Yes           | Yes         | Yes                          |
 | mi_susan                  | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
-| pb_datamining_correlation |
-| pb_datamining_covariance  |
-| pb_la_blas_gemm           |
-| pb_la_blas_gemver         |
-| pb_la_blas_gesummv        |
-| pb_la_blas_symm           |
-| pb_la_blas_syr2k          |
-| pb_la_blas_syrk           |
-| pb_la_blas_trmm           |
+| pb_datamining_correlation | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_datamining_covariance  | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_blas_gemm           | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_blas_gemver         | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_blas_gesummv        | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_blas_symm           | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_blas_syr2k          | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_blas_syrk           | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_blas_trmm           | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
 | pb_la_kernels_2mm         |
 | pb_la_kernels_3mm         |
 | pb_la_kernels_atax        |
