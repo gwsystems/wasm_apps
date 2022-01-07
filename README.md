@@ -59,12 +59,12 @@
 | pb_la_solvers_lu          | Yes           | Yes         | Yes                                                | Yes                                               | Unknown                      |
 | pb_la_solvers_ludcmp      | Yes           | Yes         | Yes                                                | Yes                                               | Unknown                      |
 | pb_la_solvers_trisolv     | Yes           | Yes         | Yes                                                | Yes                                               | Unknown                      |
-| pb_medely_deriche         |
-| pb_medely_floyd_warshall  |
-| pb_medely_nussinov        |
-| pb_stencils_adi           |
-| pb_stencils_fdtd_2d       |
-| pb_stencils_head_3d       |
-| pb_stencils_jacobi_1d     |
-| pb_stencils_jacobi_2d     |
-| pb_stencils_seidel_2d     |
+| pb_medely_deriche         | Yes           | Yes         | Yes                                                | Yes                                               | Unknown                      |
+| pb_medely_floyd_warshall  | Yes           | Yes         | Yes                                                | Yes                                               | Unknown                      |
+| pb_medely_nussinov        | Yes           | Yes         | Yes                                                | Yes                                               | Unknown                      |
+| pb_stencils_adi           | Yes           | Yes         | Yes                                                | Yes                                               | Unknown                      |
+| pb_stencils_fdtd_2d       | Yes           | Yes         | Yes                                                | Yes                                               | Unknown                      |
+| pb_stencils_heat_3d       | Yes           | Yes         | Yes                                                | Yes                                               | Unknown                      |
+| pb_stencils_jacobi_1d     | Yes           | Yes         | Yes                                                | Yes                                               | Unknown                      |
+| pb_stencils_jacobi_2d     | Yes           | Yes         | Yes                                                | Yes                                               | Unknown                      |
+| pb_stencils_seidel_2d     | Yes           | Yes         | Yes                                                | Yes                                               | Unknown                      |
