@@ -47,18 +47,18 @@
 | pb_la_blas_syr2k          | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
 | pb_la_blas_syrk           | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
 | pb_la_blas_trmm           | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
-| pb_la_kernels_2mm         |
-| pb_la_kernels_3mm         |
-| pb_la_kernels_atax        |
-| pb_la_kernels_bicg        |
-| pb_la_kernels_doitgen     |
-| pb_la_kernels_mvt         |
-| pb_la_solvers_cholesky    |
-| pb_la_solvers_durbin      |
-| pb_la_solvers_gramschmidt |
-| pb_la_solvers_lu          |
-| pb_la_solvers_ludcmp      |
-| pb_la_solvers_trisolv     |
+| pb_la_kernels_2mm         | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_kernels_3mm         | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_kernels_atax        | Yes                                                | Yes                                               | Yes           | Yes         | Yes                          |
+| pb_la_kernels_bicg        | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_kernels_doitgen     | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_kernels_mvt         | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_solvers_cholesky    | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_solvers_durbin      | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_solvers_gramschmidt | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_solvers_lu          | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_solvers_ludcmp      | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
+| pb_la_solvers_trisolv     | Yes                                                | Yes                                               | Yes           | Yes         | Unknown                      |
 | pb_medely_deriche         |
 | pb_medely_floyd_warshall  |
 | pb_medely_nussinov        |
