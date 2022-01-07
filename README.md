@@ -68,3 +68,11 @@
 | pb_stencils_jacobi_1d     | Yes           | Yes         | Yes                                                | Yes                                               | Unknown                      |
 | pb_stencils_jacobi_2d     | Yes           | Yes         | Yes                                                | Yes                                               | Unknown                      |
 | pb_stencils_seidel_2d     | Yes           | Yes         | Yes                                                | Yes                                               | Unknown                      |
+
+References:
+
+- The applications prefixed with `pb_` are from [the PolyBench/C benchmark](http://web.cse.ohio-state.edu/~pouchet.2/software/polybench/). It is the benchmark used in [the original WebAssembly paper](https://dl.acm.org/doi/10.1145/3062341.3062363) and includes common matrix operations and statistical operations.
+- CMSIS-NN V1.0.0 (nn)- A neural network library designed for microcontrollers that is used to perform image categorization. [View on GitHub](https://github.com/ARM-software/CMSIS_5/tree/develop/CMSIS/NN)
+- Arduino PID library (pid) - A typical Proportional, Integral, Derivative controller used for physical control. [Arduino Docs](https://playground.arduino.cc/Code/PIDLibrary/)
+- TinyEKF Kalman filter (kalman)- Used for sensor fusion and state estimation. [View on GitHub](https://github.com/simondlevy/TinyEKF).
+- TinyCrypt (crypto) - A small library of crypto primitives. [View on GitHub](https://github.com/intel/tinycrypt)
