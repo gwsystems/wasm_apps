@@ -1,17 +1,13 @@
-WASMCC=${WASI_SDK_PATH}/bin/clang --sysroot=${WASI_SDK_PATH}/share/wasi-sysroot/
 CC=clang
-OPTFLAGS=-O3 -flto -Wall -I.
+CFLAGS=-O3 -I. -Wall
+LDFLAGS=-flto
 
-# A Name Section is emitted when optimization level is 0 and -g is set
-# OPTFLAGS+= -O0 -g
+WASMCC=${WASI_SDK_PATH}/bin/clang --sysroot=${WASI_SDK_PATH}/share/wasi-sysroot/
+WASMCFLAGS=${CFLAGS}
+WASMLDFLAGS=${LDFLAGS} -Wl,-z,stack-size=524288,--allow-undefined,--threads=1
 
 # Clang 12 WebAssembly Options
 # See https://clang.llvm.org/docs/ClangCommandLineReference.html#webassembly
-
-
-WASMLINKFLAGS=-Wl,-z,stack-size=524288,--allow-undefined,--threads=1
-WASMCFLAGS=${WASMLINKFLAGS} ${OPTFLAGS}
-
 # Disable WebAssembly Proposals aWsm does not support
 WASMCFLAGS+= -mno-atomics # https://github.com/WebAssembly/threads
 WASMCFLAGS+= -mno-bulk-memory # https://github.com/WebAssembly/bulk-memory-operations
@@ -26,7 +22,9 @@ WASMCFLAGS+= -mno-tail-call # https://github.com/WebAssembly/tail-call
 WASMCFLAGS+= -mno-unimplemented-simd128 # https://github.com/webassembly/simd
 
 .PHONY: all
-all: bin/custom_function_pointers.wasm
+all: \
+	bin/custom_function_pointers.out \
+	bin/custom_function_pointers.wasm
 
 .PHONY: clean
 clean:
@@ -34,17 +32,19 @@ clean:
 
 bin/custom_function_pointers.wasm: *.c
 	@mkdir -p bin
-	${WASMCC} ${WASMCFLAGS} $^ -o $@
+	${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
 
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
 bin/custom_function_pointers.out: *.c
 	@mkdir -p bin
-	${CC} ${OPTFLAGS} $^ -o $@
+	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
+.PHONY: run
 run: bin/custom_function_pointers.wasm
 	wasmtime bin/custom_function_pointers.wasm
 
+.PHONY: run_native
 run_native: bin/custom_function_pointers.out
 	./bin/custom_function_pointers.out

@@ -1,16 +1,13 @@
 CC=clang
-OPTFLAGS=-O3 -flto
-
-# A Name Section is emitted when optimization level is 0 and -g is set
-# OPTFLAGS+= -O0 -g
+CFLAGS=-O3 -I. -Wall
+LDFLAGS=-flto
 
 WASMCC=${WASI_SDK_PATH}/bin/clang --sysroot=${WASI_SDK_PATH}/share/wasi-sysroot/
-WASMLINKFLAGS=-Wl,--allow-undefined,-z,stack-size=32768,--threads=1
-WASMCFLAGS= ${WASMLINKFLAGS} ${OPTFLAGS}
+WASMCFLAGS=${CFLAGS}
+WASMLDFLAGS=${LDFLAGS} -Wl,--allow-undefined,-z,stack-size=32768,--threads=1
 
 # Clang 12 WebAssembly Options
 # See https://clang.llvm.org/docs/ClangCommandLineReference.html#webassembly
-
 # Disable WebAssembly Proposals aWsm does not support
 WASMCFLAGS+= -mno-atomics # https://github.com/WebAssembly/threads
 WASMCFLAGS+= -mno-bulk-memory # https://github.com/WebAssembly/bulk-memory-operations
@@ -24,20 +21,25 @@ WASMCFLAGS+= -mno-sign-ext # https://github.com/WebAssembly/sign-extension-ops
 WASMCFLAGS+= -mno-tail-call # https://github.com/WebAssembly/tail-call
 WASMCFLAGS+= -mno-unimplemented-simd128 # https://github.com/webassembly/simd
 
+.PHONY: all
+all: \
+	bin/echo.out \
+	bin/echo.wasm
 
 echo.wasm: main.c
-	@${WASMCC} ${WASMCFLAGS} $^ -o $@
+	@${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
 
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
 echo.out: main.c
-	@${CC} ${OPTFLAGS} $^ -o $@
+	@${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
 .PHONY: clean
 clean:
+	@rm -f echo.out
 	@rm -f echo.wasm
-
+	
 # Serverless style app that uses stdin and stdout
 # echo "10" | make run
 .PHONY: run

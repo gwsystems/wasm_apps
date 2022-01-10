@@ -1,16 +1,13 @@
 CC=clang
-OPTFLAGS=-O3 -flto -Wall -I. -DUNIX -D_BSD -DPORTABLE -DUSE_NBIO -DMPORTABLE -Wno-everything
-
-# A Name Section is emitted when optimization level is 0 and -g is set
-# OPTFLAGS+= -O0 -g
+CFLAGS=-O3 -I. -Wall -Wno-everything -DUNIX -D_BSD -DPORTABLE -DUSE_NBIO -DMPORTABLE
+LDFLAGS=-flto
 
 WASMCC=${WASI_SDK_PATH}/bin/clang --sysroot=${WASI_SDK_PATH}/share/wasi-sysroot/
-WASMLINKFLAGS=-Wl,-z,stack-size=524288,--allow-undefined,--threads=1 -lwasi-emulated-signal
-WASMCFLAGS=${WASMLINKFLAGS} ${OPTFLAGS} -D_WASI_EMULATED_SIGNAL
+WASMCFLAGS=${CFLAGS} -D_WASI_EMULATED_SIGNAL
+WASMLDFLAGS=${LDFLAGS} -Wl,-z,stack-size=524288,--allow-undefined,--threads=1 -lwasi-emulated-signal
 
 # Clang 12 WebAssembly Options
 # See https://clang.llvm.org/docs/ClangCommandLineReference.html#webassembly
-
 # Disable WebAssembly Proposals aWsm does not support
 WASMCFLAGS+= -mno-atomics # https://github.com/WebAssembly/threads
 WASMCFLAGS+= -mno-bulk-memory # https://github.com/WebAssembly/bulk-memory-operations
@@ -25,7 +22,9 @@ WASMCFLAGS+= -mno-tail-call # https://github.com/WebAssembly/tail-call
 WASMCFLAGS+= -mno-unimplemented-simd128 # https://github.com/webassembly/simd
 
 .PHONY: all
-all: bin/mi_pgp.wasm
+all: \
+	bin/mi_pgp.out \
+	bin/mi_pgp.wasm
 
 .PHONY: clean
 clean:
@@ -33,7 +32,7 @@ clean:
 
 bin/mi_pgp.wasm: *.c
 	@mkdir -p bin
-	${WASMCC} ${WASMCFLAGS} $^ -o $@
+	${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
 
 %.wat: %.wasm
 	wasm2wat $< -o $@
@@ -44,7 +43,7 @@ run: bin/mi_pgp.wasm
 
 bin/mi_pgp.out: *.c
 	@mkdir -p bin
-	${CC} ${OPTFLAGS} $^ -o $@
+	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
 .PHONY: run_native
 run_native: bin/mi_pgp.out

@@ -1,16 +1,13 @@
 CC=clang
-OPTFLAGS=-O3 -flto -Wall -I.
-
-# A Name Section is emitted when optimization level is 0 and -g is set
-# OPTFLAGS+= -O0 -g
+CFLAGS=-O3 -I. -Wall -Wno-implicit-int -Wno-implicit-function-declaration
+LDFLAGS=-flto
 
 WASMCC=${WASI_SDK_PATH}/bin/clang --sysroot=${WASI_SDK_PATH}/share/wasi-sysroot/
-WASMLINKFLAGS=-Wl,-z,stack-size=524288,--allow-undefined,--threads=1 -Wno-implicit-int -Wno-implicit-function-declaration
-WASMCFLAGS=${WASMLINKFLAGS} ${OPTFLAGS}
+WASMCFLAGS=${CFLAGS}
+WASMLDFLAGS=${LDFLAGS} -Wl,-z,stack-size=524288,--allow-undefined,--threads=1
 
 # Clang 12 WebAssembly Options
 # See https://clang.llvm.org/docs/ClangCommandLineReference.html#webassembly
-
 # Disable WebAssembly Proposals aWsm does not support
 WASMCFLAGS+= -mno-atomics # https://github.com/WebAssembly/threads
 WASMCFLAGS+= -mno-bulk-memory # https://github.com/WebAssembly/bulk-memory-operations
@@ -25,7 +22,9 @@ WASMCFLAGS+= -mno-tail-call # https://github.com/WebAssembly/tail-call
 WASMCFLAGS+= -mno-unimplemented-simd128 # https://github.com/webassembly/simd
 
 .PHONY: all
-all: bin/mi_adpcm.wasm
+all: \
+	bin/mi_adpcm.out \
+	bin/mi_adpcm.wasm
 
 .PHONY: clean
 clean:
@@ -33,17 +32,19 @@ clean:
 
 bin/mi_adpcm.wasm: *.c
 	@mkdir -p bin
-	${WASMCC} ${WASMCFLAGS} $^ -o $@
+	${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
 
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
+.PHONY: run
 run: bin/mi_adpcm.wasm
 	wasmtime bin/mi_adpcm.wasm < large.pcm
 
 bin/mi_adpcm.out: *.c
 	@mkdir -p bin
-	${CC} ${OPTFLAGS} $^ -o $@
+	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
+.PHONY: run_native
 run_native: bin/mi_adpcm.out
 	./bin/mi_adpcm.out < large.pcm
