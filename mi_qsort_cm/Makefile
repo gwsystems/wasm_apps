@@ -5,6 +5,8 @@ LDFLAGS=-flto
 
 WASMCC=${WASI_SDK_PATH}/bin/clang --sysroot=${WASI_SDK_PATH}/share/wasi-sysroot/
 WASMCFLAGS=${CFLAGS} -D_WASI_EMULATED_SIGNAL
+
+# See https://lld.llvm.org/WebAssembly.html
 WASMLDFLAGS=${LDFLAGS} -Wl,-z,stack-size=524288,--allow-undefined,--threads=1 -lwasi-emulated-signal
 
 # Clang 12 WebAssembly Options
