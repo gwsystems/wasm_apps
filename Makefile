@@ -73,6 +73,7 @@ all.out: \
 	dist/pb_stencils_jacobi_2d.out \
 	dist/pb_stencils_seidel_2d.out \
 	dist/resize_image.out \
+	dist/trap_divzero.wasm \
 	dist/license_plate_detection.out \
 	dist/gps_ekf.out \
 	# dist/app_nn.out \
@@ -145,6 +146,7 @@ all.wasm: \
 	dist/resize_image.wasm \
 	dist/license_plate_detection.wasm \
 	dist/gps_ekf.wasm \
+	dist/trap_divzero.wasm \
 	# dist/app_nn.wasm \
 	# dist/custom_sqlite.wasm \
 	# dist/mi_patricia.wasm \
@@ -221,10 +223,9 @@ clean:
 	make -C pb_stencils_jacobi_1d clean
 	make -C pb_stencils_jacobi_2d clean
 	make -C pb_stencils_seidel_2d clean
-
-
 	make -C sod clean
 	make -C TinyEKF -f wasm.mk clean
+	make -C traps clean
 
 dist:
 	mkdir dist
@@ -794,3 +795,11 @@ dist/gps_ekf.out: dist
 dist/gps_ekf.wasm: dist
 	make -C TinyEKF -f wasm.mk gps_ekf.wasm
 	cp ./TinyEKF/gps_ekf.wasm ./dist/gps_ekf.wasm
+
+dist/trap_divzero.out: dist
+	make -C traps trap_divzero.out
+	cp ./traps/trap_divzero.out ./dist/trap_divzero.out
+
+dist/trap_divzero.wasm: dist
+	make -C traps trap_divzero.wasm
+	cp ./traps/trap_divzero.wasm ./dist/trap_divzero.wasm
