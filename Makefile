@@ -256,6 +256,10 @@ dist/app_v9.wasm: dist
 	make -C app_v9 bin/app_v9.wasm
 	cp ./app_v9/bin/app_v9.wasm ./dist/app_v9.wasm
 
+dist/asc_fib.wasm: dist
+	cd ./asc-fib && pnpm asbuild
+	cp ./asc-fib/optimized.wasm ./dist/asc-fib.wasm
+
 dist/custom_binarytrees.out: dist
 	make -C custom_binarytrees bin/custom_binarytrees.out
 	cp ./custom_binarytrees/bin/custom_binarytrees.out ./dist/custom_binarytrees.out

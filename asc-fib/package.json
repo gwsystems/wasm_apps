@@ -1,0 +1,20 @@
+{
+	"name": "asc_add",
+	"version": "1.0.0",
+	"description": "",
+	"scripts": {
+		"test": "node tests",
+		"asbuild:untouched": "asc fibonacci.ts --target debug",
+		"asbuild:optimized": "asc fibonacci.ts --target release",
+		"asbuild": "npm run asbuild:untouched && npm run asbuild:optimized"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@assemblyscript/loader": "^0.19.1",
+		"as-wasi": "^0.4.6"
+	},
+	"devDependencies": {
+		"assemblyscript": "^0.19.1"
+	}
+}
