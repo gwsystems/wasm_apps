@@ -3,3 +3,4 @@ pnpm-lock.yaml
 *.wasm
 *.wat
 *.wasm.map
+.pnpm*

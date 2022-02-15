@@ -256,7 +256,7 @@ dist/app_v9.wasm: dist
 	make -C app_v9 bin/app_v9.wasm
 	cp ./app_v9/bin/app_v9.wasm ./dist/app_v9.wasm
 
-dist/asc_fib.wasm: dist
+dist/asc-fib.wasm: dist
 	cd ./asc-fib && pnpm asbuild
 	cp ./asc-fib/optimized.wasm ./dist/asc-fib.wasm
 
