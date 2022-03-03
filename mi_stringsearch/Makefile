@@ -22,7 +22,7 @@ WASMCFLAGS+= -mno-nontrapping-fptoint # https://github.com/WebAssembly/nontrappi
 WASMCFLAGS+= -mno-reference-types # https://github.com/WebAssembly/reference-types
 WASMCFLAGS+= -mno-sign-ext # https://github.com/WebAssembly/sign-extension-ops
 WASMCFLAGS+= -mno-tail-call # https://github.com/WebAssembly/tail-call
-WASMCFLAGS+= -mno-unimplemented-simd128 # https://github.com/webassembly/simd
+WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 
 .PHONY: all
 all: \
