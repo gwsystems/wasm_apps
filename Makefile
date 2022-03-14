@@ -153,6 +153,11 @@ all.wasm: \
 	# dist/mi_patricia_cm.wasm \
 	# dist/mi_pgp.wasm \
 
+dist/wasm_apps.tar.gz: all.wasm
+	tar -czvf dist/wasm_apps.tar.gz dist/*.wasm
+
+.PHONY: pack 
+pack: dist/wasm_apps.tar.gz
 
 .PHONY: clean
 clean:
