@@ -1,3 +1,21 @@
+# WebAssembly Apps
+
+A set of applications and benchmarks ported to WebAssembly.
+
+## Prerequisites
+
+C programs assume an installation of the WASI-SDK toolchain. The environment variable `WASI_SDK_PATH` should point to the absolute directory of this toolchain.
+
+## Installation
+
+```sh
+git clone --recurse-submodules https://github.com/gwsystems/wasm_apps.git
+cd wasm_apps
+make clean all
+```
+
+## App Status
+
 | App                       | Native Builds | Native Runs | WASI-SDK Builds                              | Wasmtime Runs                                      | Functionally Correct         |
 | ------------------------- | ------------- | ----------- | -------------------------------------------- | -------------------------------------------------- | ---------------------------- |
 | app_nn                    | No            | No          | fatal error: 'arm_math.h' file not found     | No                                                 | Unknown                      |
