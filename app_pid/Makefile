@@ -29,13 +29,15 @@ all: \
 	bin/app_pid.wasm
 
 bin/app_pid.wasm: *.cpp
+	mkdir -p bin
 	@${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
 
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
 bin/app_pid.out: *.cpp
-	@${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
+	mkdir -p bin
+	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
 .PHONY: run
 run: bin/app_pid.wasm
