@@ -232,6 +232,71 @@ clean:
 	make -C TinyEKF -f wasm.mk clean
 	make -C traps clean
 
+bench.csv:
+	rm -f bench.csv
+	make -C app_pid bench.csv && cat app_pid/bench.csv >> bench.csv
+	make -C app_tinycrypt bench.csv && cat app_tinycrypt/bench.csv >> bench.csv
+	make -C app_v9 bench.csv && cat app_v9/bench.csv >> bench.csv
+	make -C CMSIS_5_NN bench.csv && cat CMSIS_5_NN/bench.csv >> bench.csv
+	make -C custom_binarytrees bench.csv && cat custom_binarytrees/bench.csv >> bench.csv
+	make -C custom_function_pointers bench.csv && cat custom_function_pointers/bench.csv >> bench.csv
+	make -C custom_matrix_multiply bench.csv && cat custom_matrix_multiply/bench.csv >> bench.csv
+	make -C custom_memcmp bench.csv && cat custom_memcmp/bench.csv >> bench.csv
+	make -C echo bench.csv && cat echo/bench.csv >> bench.csv
+	make -C empty bench.csv && cat empty/bench.csv >> bench.csv
+	make -C exit bench.csv && cat exit/bench.csv >> bench.csv
+	make -C fibonacci bench.csv && cat fibonacci/bench.csv >> bench.csv
+	make -C mi_adpcm bench.csv && cat mi_adpcm/bench.csv >> bench.csv
+	make -C mi_basic_math bench.csv && cat mi_basic_math/bench.csv >> bench.csv
+	make -C mi_bitcount bench.csv && cat mi_bitcount/bench.csv >> bench.csv
+	make -C mi_bitcount_cm bench.csv && cat mi_bitcount_cm/bench.csv >> bench.csv
+	make -C mi_crc bench.csv && cat mi_crc/bench.csv >> bench.csv
+	make -C mi_dijkstra bench.csv && cat mi_dijkstra/bench.csv >> bench.csv
+	make -C mi_dijkstra_cm bench.csv && cat mi_dijkstra_cm/bench.csv >> bench.csv
+	make -C mi_fft bench.csv && cat mi_fft/bench.csv >> bench.csv
+	make -C mi_mandelbrot bench.csv && cat mi_mandelbrot/bench.csv >> bench.csv
+	make -C mi_mandelbrot_cm bench.csv && cat mi_mandelbrot_cm/bench.csv >> bench.csv
+	make -C mi_qsort bench.csv && cat mi_qsort/bench.csv >> bench.csv
+	make -C mi_qsort_cm bench.csv && cat mi_qsort_cm/bench.csv >> bench.csv
+	make -C mi_rsynth bench.csv && cat mi_rsynth/bench.csv >> bench.csv
+	make -C mi_sha bench.csv && cat mi_sha/bench.csv >> bench.csv
+	make -C mi_stringsearch bench.csv && cat mi_stringsearch/bench.csv >> bench.csv
+	make -C mi_susan bench.csv && cat mi_susan/bench.csv >> bench.csv
+	make -C pb_datamining_correlation bench.csv && cat pb_datamining_correlation/bench.csv >> bench.csv
+	make -C pb_datamining_covariance bench.csv && cat pb_datamining_covariance/bench.csv >> bench.csv
+	make -C pb_la_blas_gemm bench.csv && cat pb_la_blas_gemm/bench.csv >> bench.csv
+	make -C pb_la_blas_gemver bench.csv && cat pb_la_blas_gemver/bench.csv >> bench.csv
+	make -C pb_la_blas_gesummv bench.csv && cat pb_la_blas_gesummv/bench.csv >> bench.csv
+	make -C pb_la_blas_symm bench.csv && cat pb_la_blas_symm/bench.csv >> bench.csv
+	make -C pb_la_blas_syr2k bench.csv && cat pb_la_blas_syr2k/bench.csv >> bench.csv
+	make -C pb_la_blas_syrk bench.csv && cat pb_la_blas_syrk/bench.csv >> bench.csv
+	make -C pb_la_blas_trmm bench.csv && cat pb_la_blas_trmm/bench.csv >> bench.csv
+	make -C pb_la_kernels_2mm bench.csv && cat pb_la_kernels_2mm/bench.csv >> bench.csv
+	make -C pb_la_kernels_3mm bench.csv && cat pb_la_kernels_3mm/bench.csv >> bench.csv
+	make -C pb_la_kernels_atax bench.csv && cat pb_la_kernels_atax/bench.csv >> bench.csv
+	make -C pb_la_kernels_bicg bench.csv && cat pb_la_kernels_bicg/bench.csv >> bench.csv
+	make -C pb_la_kernels_doitgen bench.csv && cat pb_la_kernels_doitgen/bench.csv >> bench.csv
+	make -C pb_la_kernels_mvt bench.csv && cat pb_la_kernels_mvt/bench.csv >> bench.csv
+	make -C pb_la_solvers_cholesky bench.csv && cat pb_la_solvers_cholesky/bench.csv >> bench.csv
+	make -C pb_la_solvers_durbin bench.csv && cat pb_la_solvers_durbin/bench.csv >> bench.csv
+	make -C pb_la_solvers_gramschmidt bench.csv && cat pb_la_solvers_gramschmidt/bench.csv >> bench.csv
+	make -C pb_la_solvers_lu bench.csv && cat pb_la_solvers_lu/bench.csv >> bench.csv
+	make -C pb_la_solvers_ludcmp bench.csv && cat pb_la_solvers_ludcmp/bench.csv >> bench.csv
+	make -C pb_la_solvers_trisolv bench.csv && cat pb_la_solvers_trisolv/bench.csv >> bench.csv
+	make -C pb_medely_deriche bench.csv && cat pb_medely_deriche/bench.csv >> bench.csv
+	make -C pb_medely_floyd_warshall bench.csv && cat pb_medely_floyd_warshall/bench.csv >> bench.csv
+	make -C pb_medely_nussinov bench.csv && cat pb_medely_nussinov/bench.csv >> bench.csv
+	make -C pb_stencils_adi bench.csv && cat pb_stencils_adi/bench.csv >> bench.csv
+	make -C pb_stencils_fdtd_2d bench.csv && cat pb_stencils_fdtd_2d/bench.csv >> bench.csv
+	make -C pb_stencils_heat_3d bench.csv && cat pb_stencils_heat_3d/bench.csv >> bench.csv
+	make -C pb_stencils_jacobi_1d bench.csv && cat pb_stencils_jacobi_1d/bench.csv >> bench.csv
+	make -C pb_stencils_jacobi_2d bench.csv && cat pb_stencils_jacobi_2d/bench.csv >> bench.csv
+	make -C pb_stencils_seidel_2d bench.csv && cat pb_stencils_seidel_2d/bench.csv >> bench.csv
+	make -C sod bench.csv && cat sod/bench.csv >> bench.csv
+	make -C TinyEKF -f wasm.mk bench.csv && cat TinyEKF/bench.csv >> bench.csv
+	make -C traps bench.csv && cat traps/bench.csv >> bench.csv
+
+
 dist:
 	mkdir dist
 
