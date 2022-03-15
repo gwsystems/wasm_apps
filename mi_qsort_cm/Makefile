@@ -2,7 +2,6 @@ CC=clang
 CFLAGS=-O3 -I. -Wall -Wno-everything -DUNIX -D_BSD -DPORTABLE -DUSE_NBIO -DMPORTABLE 
 LDFLAGS=-flto
 
-
 WASMCC=${WASI_SDK_PATH}/bin/clang --sysroot=${WASI_SDK_PATH}/share/wasi-sysroot/
 WASMCFLAGS=${CFLAGS} -D_WASI_EMULATED_SIGNAL
 
@@ -45,13 +44,17 @@ bin/mi_qsort_cm.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/mi_qsort_cm.wasm
-	wasmtime --dir=. bin/mi_qsort_cm.wasm input_small.dat
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_qsort_cm.wasm
+	wasmtime --dir=. bin/mi_qsort_cm.wasm
 
-.PHONY: run_aot
-run_aot: bin/mi_qsort_cm.cwasm
-	wasmtime run --dir=. --allow-precompiled bin/mi_qsort_cm.cwasm input_small.dat
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_qsort_cm.cwasm
+	wasmtime run --dir=. --allow-precompiled bin/mi_qsort_cm.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_qsort_cm.wasm
+	wasm3 bin/mi_qsort_cm.wasm
 
 bin/mi_qsort_cm.out: *.c
 	@mkdir -p bin
@@ -59,10 +62,12 @@ bin/mi_qsort_cm.out: *.c
 
 .PHONY: run_native
 run_native: bin/mi_qsort_cm.out
-	./bin/mi_qsort_cm.out input_small.dat
+	./bin/mi_qsort_cm.out
 
 bench.csv: bin/mi_qsort_cm.wasm bin/mi_qsort_cm.cwasm bin/mi_qsort_cm.out
 	hyperfine -N -w 10 \
-	-n mi_qsort_cm_native './bin/mi_qsort_cm.out input_small.dat' \
-	-n mi_qsort_cm_wasmtime_jit 'wasmtime run --dir=. bin/mi_qsort_cm.wasm input_small.dat' \
-	-n mi_qsort_cm_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_qsort_cm.cwasm input_small.dat' --export-csv bench.csv
+	-n mi_qsort_cm_native './bin/mi_qsort_cm.out' \
+	-n mi_qsort_cm_wasmtime_jit 'wasmtime run bin/mi_qsort_cm.wasm' \
+	-n mi_qsort_cm_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_qsort_cm.cwasm' \
+	-n mi_qsort_cm_wasm3 'wasm3 bin/mi_qsort_cm.wasm' \
+	--export-csv bench.csv

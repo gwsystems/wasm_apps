@@ -45,13 +45,17 @@ bin/mi_stringsearch.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/mi_stringsearch.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_stringsearch.wasm
 	wasmtime bin/mi_stringsearch.wasm
 
-.PHONY: run_aot
-run_aot: bin/mi_stringsearch.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_stringsearch.cwasm
 	wasmtime run --allow-precompiled bin/mi_stringsearch.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_stringsearch.wasm
+	wasm3 bin/mi_stringsearch.wasm
 
 bin/mi_stringsearch.out: *.c
 	@mkdir -p bin
@@ -66,4 +70,5 @@ bench.csv: bin/mi_stringsearch.wasm bin/mi_stringsearch.cwasm bin/mi_stringsearc
 	-n mi_stringsearch_native './bin/mi_stringsearch.out' \
 	-n mi_stringsearch_wasmtime_jit 'wasmtime run bin/mi_stringsearch.wasm' \
 	-n mi_stringsearch_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_stringsearch.cwasm' \
+	-n mi_stringsearch_wasm3 'wasm3 bin/mi_stringsearch.wasm' \
 	--export-csv bench.csv

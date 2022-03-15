@@ -44,13 +44,17 @@ bin/mi_blowfish.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/mi_blowfish.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_blowfish.wasm
 	wasmtime --dir=. bin/mi_blowfish.wasm -- e input_large.asc /dev/null 1234567890abcdeffedcba0987654321
 
-.PHONY: run_aot
-run_aot: bin/mi_blowfish.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_blowfish.cwasm
 	wasmtime run --allow-precompiled --dir=. bin/mi_blowfish.cwasm bin/mi_blowfish.wasm -- e input_large.asc /dev/null 1234567890abcdeffedcba0987654321
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_blowfish.wasm
+	wasm3 bin/mi_blowfish.wasm e input_large.asc /dev/null 1234567890abcdeffedcba0987654321
 
 bin/mi_blowfish.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/mi_blowfish.wasm bin/mi_blowfish.cwasm bin/mi_blowfish.out
 	-n mi_blowfish_native './bin/mi_blowfish.out e input_large.asc /dev/null 1234567890abcdeffedcba0987654321' \
 	-n mi_blowfish_wasmtime_jit 'wasmtime run bin/mi_blowfish.wasm -- e input_large.asc /dev/null 1234567890abcdeffedcba0987654321' \
 	-n mi_blowfish_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_blowfish.cwasm -- e input_large.asc /dev/null 1234567890abcdeffedcba0987654321' \
+	-n mi_blowfish_wasm3 'wasm3 bin/mi_blowfish.wasm e input_large.asc /dev/null 1234567890abcdeffedcba0987654321' \
 	--export-csv bench.csv

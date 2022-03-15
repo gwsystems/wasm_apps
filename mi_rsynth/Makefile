@@ -44,13 +44,17 @@ bin/mi_rsynth.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/mi_rsynth.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_rsynth.wasm
 	wasmtime bin/mi_rsynth.wasm -- -a -q -o /dev/null < largeinput.txt
 
-.PHONY: run_aot
-run_aot: bin/mi_rsynth.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_rsynth.cwasm
 	wasmtime run --allow-precompiled bin/mi_rsynth.cwasm -- -a -q -o /dev/null < largeinput.txt
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_rsynth.wasm
+	wasm3 bin/mi_rsynth.wasm -a -q -o /dev/null < largeinput.txt
 
 bin/mi_rsynth.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/mi_rsynth.wasm bin/mi_rsynth.cwasm bin/mi_rsynth.out
 	-n mi_rsynth_native './bin/mi_rsynth.out' \
 	-n mi_rsynth_wasmtime_jit 'wasmtime run bin/mi_rsynth.wasm -- -a -q -o /dev/null < largeinput.txt' \
 	-n mi_rsynth_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_rsynth.cwasm -- -a -q -o /dev/null < largeinput.txt' \
+	-n mi_rsynth_wasm3 'wasm3 bin/mi_rsynth.wasm -a -q -o /dev/null < largeinput.txt' \
 	--export-csv bench.csv

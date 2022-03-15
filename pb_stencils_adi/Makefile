@@ -44,13 +44,17 @@ bin/pb_stencils_adi.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_stencils_adi.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_stencils_adi.wasm
 	wasmtime bin/pb_stencils_adi.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_stencils_adi.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_stencils_adi.cwasm
 	wasmtime run --allow-precompiled bin/pb_stencils_adi.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_stencils_adi.wasm
+	wasm3 bin/pb_stencils_adi.wasm
 
 bin/pb_stencils_adi.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_stencils_adi.wasm bin/pb_stencils_adi.cwasm bin/pb_stencils_ad
 	-n pb_stencils_adi_native './bin/pb_stencils_adi.out' \
 	-n pb_stencils_adi_wasmtime_jit 'wasmtime run bin/pb_stencils_adi.wasm' \
 	-n pb_stencils_adi_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_stencils_adi.cwasm' \
+	-n pb_stencils_adi_wasm3 'wasm3 bin/pb_stencils_adi.wasm' \
 	--export-csv bench.csv

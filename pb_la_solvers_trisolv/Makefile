@@ -44,13 +44,17 @@ bin/pb_la_solvers_trisolv.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_la_solvers_trisolv.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_la_solvers_trisolv.wasm
 	wasmtime bin/pb_la_solvers_trisolv.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_la_solvers_trisolv.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_la_solvers_trisolv.cwasm
 	wasmtime run --allow-precompiled bin/pb_la_solvers_trisolv.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_la_solvers_trisolv.wasm
+	wasm3 bin/pb_la_solvers_trisolv.wasm
 
 bin/pb_la_solvers_trisolv.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_la_solvers_trisolv.wasm bin/pb_la_solvers_trisolv.cwasm bin/pb
 	-n pb_la_solvers_trisolv_native './bin/pb_la_solvers_trisolv.out' \
 	-n pb_la_solvers_trisolv_wasmtime_jit 'wasmtime run bin/pb_la_solvers_trisolv.wasm' \
 	-n pb_la_solvers_trisolv_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_trisolv.cwasm' \
+	-n pb_la_solvers_trisolv_wasm3 'wasm3 bin/pb_la_solvers_trisolv.wasm' \
 	--export-csv bench.csv

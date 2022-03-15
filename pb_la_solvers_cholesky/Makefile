@@ -44,13 +44,17 @@ bin/pb_la_solvers_cholesky.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_la_solvers_cholesky.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_la_solvers_cholesky.wasm
 	wasmtime bin/pb_la_solvers_cholesky.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_la_solvers_cholesky.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_la_solvers_cholesky.cwasm
 	wasmtime run --allow-precompiled bin/pb_la_solvers_cholesky.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_la_solvers_cholesky.wasm
+	wasm3 bin/pb_la_solvers_cholesky.wasm
 
 bin/pb_la_solvers_cholesky.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_la_solvers_cholesky.wasm bin/pb_la_solvers_cholesky.cwasm bin/
 	-n pb_la_solvers_cholesky_native './bin/pb_la_solvers_cholesky.out' \
 	-n pb_la_solvers_cholesky_wasmtime_jit 'wasmtime run bin/pb_la_solvers_cholesky.wasm' \
 	-n pb_la_solvers_cholesky_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_cholesky.cwasm' \
+	-n pb_la_solvers_cholesky_wasm3 'wasm3 bin/pb_la_solvers_cholesky.wasm' \
 	--export-csv bench.csv

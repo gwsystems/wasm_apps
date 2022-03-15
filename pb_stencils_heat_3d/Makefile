@@ -44,13 +44,17 @@ bin/pb_stencils_heat_3d.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_stencils_heat_3d.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_stencils_heat_3d.wasm
 	wasmtime bin/pb_stencils_heat_3d.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_stencils_heat_3d.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_stencils_heat_3d.cwasm
 	wasmtime run --allow-precompiled bin/pb_stencils_heat_3d.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_stencils_heat_3d.wasm
+	wasm3 bin/pb_stencils_heat_3d.wasm
 
 bin/pb_stencils_heat_3d.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_stencils_heat_3d.wasm bin/pb_stencils_heat_3d.cwasm bin/pb_ste
 	-n pb_stencils_heat_3d_native './bin/pb_stencils_heat_3d.out' \
 	-n pb_stencils_heat_3d_wasmtime_jit 'wasmtime run bin/pb_stencils_heat_3d.wasm' \
 	-n pb_stencils_heat_3d_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_stencils_heat_3d.cwasm' \
+	-n pb_stencils_heat_3d_wasm3 'wasm3 bin/pb_stencils_heat_3d.wasm' \
 	--export-csv bench.csv

@@ -44,13 +44,17 @@ bin/pb_la_solvers_durbin.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_la_solvers_durbin.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_la_solvers_durbin.wasm
 	wasmtime bin/pb_la_solvers_durbin.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_la_solvers_durbin.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_la_solvers_durbin.cwasm
 	wasmtime run --allow-precompiled bin/pb_la_solvers_durbin.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_la_solvers_durbin.wasm
+	wasm3 bin/pb_la_solvers_durbin.wasm
 
 bin/pb_la_solvers_durbin.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_la_solvers_durbin.wasm bin/pb_la_solvers_durbin.cwasm bin/pb_l
 	-n pb_la_solvers_durbin_native './bin/pb_la_solvers_durbin.out' \
 	-n pb_la_solvers_durbin_wasmtime_jit 'wasmtime run bin/pb_la_solvers_durbin.wasm' \
 	-n pb_la_solvers_durbin_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_durbin.cwasm' \
+	-n pb_la_solvers_durbin_wasm3 'wasm3 bin/pb_la_solvers_durbin.wasm' \
 	--export-csv bench.csv

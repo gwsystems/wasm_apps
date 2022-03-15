@@ -44,13 +44,17 @@ bin/pb_la_blas_syr2k.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_la_blas_syr2k.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_la_blas_syr2k.wasm
 	wasmtime bin/pb_la_blas_syr2k.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_la_blas_syr2k.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_la_blas_syr2k.cwasm
 	wasmtime run --allow-precompiled bin/pb_la_blas_syr2k.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_la_blas_syr2k.wasm
+	wasm3 bin/pb_la_blas_syr2k.wasm
 
 bin/pb_la_blas_syr2k.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_la_blas_syr2k.wasm bin/pb_la_blas_syr2k.cwasm bin/pb_la_blas_s
 	-n pb_la_blas_syr2k_native './bin/pb_la_blas_syr2k.out' \
 	-n pb_la_blas_syr2k_wasmtime_jit 'wasmtime run bin/pb_la_blas_syr2k.wasm' \
 	-n pb_la_blas_syr2k_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_blas_syr2k.cwasm' \
+	-n pb_la_blas_syr2k_wasm3 'wasm3 bin/pb_la_blas_syr2k.wasm' \
 	--export-csv bench.csv

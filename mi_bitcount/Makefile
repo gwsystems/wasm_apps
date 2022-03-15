@@ -44,13 +44,17 @@ bin/mi_bitcount.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/mi_bitcount.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_bitcount.wasm
 	wasmtime bin/mi_bitcount.wasm 16777216
 
-.PHONY: run_aot
-run_aot: bin/mi_bitcount.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_bitcount.cwasm
 	wasmtime run --allow-precompiled bin/mi_bitcount.cwasm 16777216
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_bitcount.wasm
+	wasm3 bin/mi_bitcount.wasm 16777216
 
 bin/mi_bitcount.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/mi_bitcount.wasm bin/mi_bitcount.cwasm bin/mi_bitcount.out
 	-n mi_bitcount_native './bin/mi_bitcount.out 16777216' \
 	-n mi_bitcount_wasmtime_jit 'wasmtime run bin/mi_bitcount.wasm 16777216' \
 	-n mi_bitcount_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_bitcount.cwasm 16777216' \
+	-n mi_bitcount_wasm3 'wasm3 bin/mi_bitcount.wasm 16777216' \
 	--export-csv bench.csv

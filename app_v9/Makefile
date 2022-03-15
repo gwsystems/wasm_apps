@@ -48,13 +48,17 @@ bin/app_v9.out: *.c
 	@mkdir -p bin
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
-.PHONY: run_jit
-run_jit: bin/app_v9.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/app_v9.wasm
 	wasmtime bin/app_v9.wasm
 
-.PHONY: run_aot
-run_aot: bin/app_v9.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/app_v9.cwasm
 	wasmtime run --allow-precompiled bin/app_v9.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/app_v9.wasm
+	wasm3 bin/app_v9.wasm
 
 .PHONY: run_native
 run_native: bin/app_v9.out
@@ -65,4 +69,5 @@ bench.csv: bin/app_v9.wasm bin/app_v9.cwasm bin/app_v9.out
 	-n app_v9_native './bin/app_v9.out' \
 	-n app_v9_wasmtime_jit 'wasmtime run bin/app_v9.wasm' \
 	-n app_v9_wasmtime_aot 'wasmtime run --allow-precompiled bin/app_v9.cwasm' \
+	-n app_v9_wasm3 'wasm3 bin/app_v9.wasm' \
 	--export-csv bench.csv

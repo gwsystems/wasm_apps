@@ -48,21 +48,26 @@ clean:
 
 # Serverless style app that uses stdin and stdout
 # echo "10" | make run
-.PHONY: run_jit
-run_jit: fibonacci.wasm
-	@wasmtime fibonacci.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: fibonacci.wasm
+	@echo "40" | wasmtime fibonacci.wasm
 
-.PHONY: run_aot
-run_aot: fibonacci.cwasm
-	wasmtime run --allow-precompiled fibonacci.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: fibonacci.cwasm
+	@echo "40" | wasmtime run --allow-precompiled fibonacci.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: fibonacci.wasm
+	@echo "40" | wasm3 fibonacci.wasm
 
 .PHONY: run_native
 run_native: fibonacci.out
 	@./fibonacci.out
 
 bench.csv: fibonacci.wasm fibonacci.cwasm fibonacci.out
-	hyperfine -N -w 10 \
-	-n fibonacci_native './fibonacci.out' \
-	-n fibonacci_wasmtime_jit 'wasmtime run fibonacci.wasm' \
-	-n fibonacci_wasmtime_aot 'wasmtime run --allow-precompiled fibonacci.cwasm' \
+	hyperfine -w 10 \
+	-n fibonacci_native 'echo "40" | ./fibonacci.out' \
+	-n fibonacci_wasmtime_jit 'echo "40" | wasmtime run fibonacci.wasm' \
+	-n fibonacci_wasmtime_aot 'echo "40" | wasmtime run --allow-precompiled fibonacci.cwasm' \
+	-n fibonacci_wasm3 'echo "40" | wasm3 fibonacci.wasm' \
 	--export-csv bench.csv

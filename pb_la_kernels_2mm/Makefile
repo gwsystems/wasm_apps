@@ -44,13 +44,17 @@ bin/pb_la_kernels_2mm.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_la_kernels_2mm.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_la_kernels_2mm.wasm
 	wasmtime bin/pb_la_kernels_2mm.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_la_kernels_2mm.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_la_kernels_2mm.cwasm
 	wasmtime run --allow-precompiled bin/pb_la_kernels_2mm.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_la_kernels_2mm.wasm
+	wasm3 bin/pb_la_kernels_2mm.wasm
 
 bin/pb_la_kernels_2mm.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_la_kernels_2mm.wasm bin/pb_la_kernels_2mm.cwasm bin/pb_la_kern
 	-n pb_la_kernels_2mm_native './bin/pb_la_kernels_2mm.out' \
 	-n pb_la_kernels_2mm_wasmtime_jit 'wasmtime run bin/pb_la_kernels_2mm.wasm' \
 	-n pb_la_kernels_2mm_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_kernels_2mm.cwasm' \
+	-n pb_la_kernels_2mm_wasm3 'wasm3 bin/pb_la_kernels_2mm.wasm' \
 	--export-csv bench.csv

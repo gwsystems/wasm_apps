@@ -44,13 +44,17 @@ bin/pb_la_solvers_ludcmp.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_la_solvers_ludcmp.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_la_solvers_ludcmp.wasm
 	wasmtime bin/pb_la_solvers_ludcmp.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_la_solvers_ludcmp.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_la_solvers_ludcmp.cwasm
 	wasmtime run --allow-precompiled bin/pb_la_solvers_ludcmp.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_la_solvers_ludcmp.wasm
+	wasm3 bin/pb_la_solvers_ludcmp.wasm
 
 bin/pb_la_solvers_ludcmp.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_la_solvers_ludcmp.wasm bin/pb_la_solvers_ludcmp.cwasm bin/pb_l
 	-n pb_la_solvers_ludcmp_native './bin/pb_la_solvers_ludcmp.out' \
 	-n pb_la_solvers_ludcmp_wasmtime_jit 'wasmtime run bin/pb_la_solvers_ludcmp.wasm' \
 	-n pb_la_solvers_ludcmp_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_ludcmp.cwasm' \
+	-n pb_la_solvers_ludcmp_wasm3 'wasm3 bin/pb_la_solvers_ludcmp.wasm' \
 	--export-csv bench.csv

@@ -44,13 +44,17 @@ bin/mi_susan.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/mi_susan.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_susan.wasm
 	wasmtime --dir=. bin/mi_susan.wasm input_large.pgm output.pgm -s
 
-.PHONY: run_aot
-run_aot: bin/mi_susan.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_susan.cwasm
 	wasmtime run --dir=. --allow-precompiled bin/mi_susan.cwasm input_large.pgm output.pgm -s
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_susan.wasm
+	wasm3 bin/mi_susan.wasm
 
 bin/mi_susan.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/mi_susan.wasm bin/mi_susan.cwasm bin/mi_susan.out
 	-n mi_susan_native './bin/mi_susan.out' \
 	-n mi_susan_wasmtime_jit 'wasmtime run bin/mi_susan.wasm' \
 	-n mi_susan_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_susan.cwasm' \
+	-n mi_susan_wasm3 'wasm3 bin/mi_susan.wasm' \
 	--export-csv bench.csv

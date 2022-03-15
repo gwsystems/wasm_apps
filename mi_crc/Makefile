@@ -44,13 +44,17 @@ bin/mi_crc.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/mi_crc.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_crc.wasm
 	wasmtime --dir=. bin/mi_crc.wasm large.pcm
 
-.PHONY: run_aot
-run_aot: bin/mi_crc.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_crc.cwasm
 	wasmtime run --dir=. --allow-precompiled bin/mi_crc.cwasm large.pcm
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_crc.wasm
+	wasm3 bin/mi_crc.wasm large.pcm
 
 bin/mi_crc.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/mi_crc.wasm bin/mi_crc.cwasm bin/mi_crc.out
 	-n mi_crc_native './bin/mi_crc.out large.pcm' \
 	-n mi_crc_wasmtime_jit 'wasmtime run --dir=. bin/mi_crc.wasm large.pcm' \
 	-n mi_crc_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_crc.cwasm large.pcm' \
+	-n mi_crc_wasm3 'wasm3 bin/mi_crc.wasm large.pcm' \
 	--export-csv bench.csv

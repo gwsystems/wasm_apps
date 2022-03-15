@@ -44,8 +44,8 @@ bin/mi_gsm.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/mi_gsm.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_gsm.wasm
 	wasmtime --dir=. bin/mi_gsm.wasm -- -fps -c large.au
 
 bin/mi_gsm.out: *.c
@@ -56,9 +56,13 @@ bin/mi_gsm.out: *.c
 run_native: bin/mi_gsm.out
 	./bin/mi_gsm.out -- -fps -c large.au
 
-.PHONY: run_aot
-run_aot: bin/mi_gsm.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_gsm.cwasm
 	wasmtime run --allow-precompiled bin/mi_gsm.cwasm -- -fps -c large.au
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_gsm.wasm
+	wasm3 bin/mi_gsm.wasm -fps -c large.au
 
 # /opt/wasi-sdk//bin/clang --sysroot=/opt/wasi-sdk//share/wasi-sysroot/ -Wl,-z,stack-size=524288,--allow-undefined,--threads=1 -lwasi-emulated-signal -O3 -flto -Wall -I. -DSASR -Wno-everything -D_WASI_EMULATED_SIGNAL -DHAS_ERRNO_DECL -DHAS_FCNTL_H toast_alaw.c gsm_option.c decode.c toast_lin.c gsm_implode.c table.c long_term.c gsm_explode.c toast.c gsm_encode.c rpe.c gsm_destroy.c code.c lpc.c short_term.c gsm_create.c debug.c add.c toast_ulaw.c toast_audio.c gsm_decode.c preprocess.c gsm_print.c -o bin/mi_gsm.wasm
 # wasmtime bin/mi_gsm.wasm 
@@ -74,4 +78,5 @@ bench.csv: bin/mi_gsm.wasm bin/mi_gsm.cwasm bin/mi_gsm.out
 	-n mi_gsm_native './bin/mi_gsm.out -fps -c large.au' \
 	-n mi_gsm_wasmtime_jit 'wasmtime run bin/mi_gsm.wasm -- -fps -c large.au' \
 	-n mi_gsm_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_gsm.cwasm -- -fps -c large.au' \
+	-n mi_gsm_wasm3 'wasm3 bin/mi_gsm.wasm -fps -c large.au' \
 	--export-csv bench.csv

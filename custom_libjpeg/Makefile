@@ -48,13 +48,17 @@ bin/custom_libjpeg.out: *.c
 	@mkdir -p bin
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
-.PHONY: run_jit
-run_jit: bin/custom_libjpeg.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/custom_libjpeg.wasm
 	wasmtime bin/custom_libjpeg.wasm
 
-.PHONY: run_aot
-run_aot: bin/custom_libjpeg.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/custom_libjpeg.cwasm
 	wasmtime run --allow-precompiled bin/custom_libjpeg.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/custom_libjpeg.wasm
+	wasm3 bin/custom_libjpeg.wasm
 
 .PHONY: run_native
 run_native: bin/custom_libjpeg.out
@@ -72,4 +76,5 @@ bench.csv: bin/custom_libjpeg.wasm bin/custom_libjpeg.cwasm bin/custom_libjpeg.o
 	-n custom_libjpeg_native './bin/custom_libjpeg.out' \
 	-n custom_libjpeg_wasmtime_jit 'wasmtime run bin/custom_libjpeg.wasm' \
 	-n custom_libjpeg_wasmtime_aot 'wasmtime run --allow-precompiled bin/custom_libjpeg.cwasm' \
+	-n custom_libjpeg_wasm3 'wasm3 bin/custom_libjpeg.wasm' \
 	--export-csv bench.csv

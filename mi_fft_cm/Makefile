@@ -44,13 +44,17 @@ bin/mi_fft_cm.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/mi_fft_cm.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_fft_cm.wasm
 	wasmtime bin/mi_fft_cm.wasm 8 32768
 
-.PHONY: run_aot
-run_aot: bin/mi_fft_cm.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_fft_cm.cwasm
 	wasmtime run --allow-precompiled bin/mi_fft_cm.cwasm 8 32768
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_fft_cm.wasm
+	wasm3 bin/mi_fft_cm.wasm 8 32768
 
 bin/mi_fft_cm.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/mi_fft_cm.wasm bin/mi_fft_cm.cwasm bin/mi_fft_cm.out
 	-n mi_fft_cm_native './bin/mi_fft_cm.out 8 32768' \
 	-n mi_fft_cm_wasmtime_jit 'wasmtime run bin/mi_fft_cm.wasm 8 32768' \
 	-n mi_fft_cm_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_fft_cm.cwasm 8 32768' \
+	-n mi_fft_cm_wasm3 'wasm3 bin/mi_fft_cm.wasm 8 32768' \
 	--export-csv bench.csv

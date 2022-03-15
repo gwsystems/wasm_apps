@@ -48,13 +48,17 @@ clean:
 	@rm -f bench.csv
 
 # Should return 0 exit status
-.PHONY: run_jit
-run_jit: exit.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: exit.wasm
 	@wasmtime exit.wasm
 
-.PHONY: run_aot
-run_aot: exit.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: exit.cwasm
 	wasmtime run --allow-precompiled exit.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: exit.wasm
+	wasm3 exit.wasm
 
 .PHONY: run_native
 run_native: exit.out
@@ -65,4 +69,5 @@ bench.csv: exit.wasm exit.cwasm exit.out
 	-n exit_native './exit.out' \
 	-n exit_wasmtime_jit 'wasmtime run exit.wasm' \
 	-n exit_wasmtime_aot 'wasmtime run --allow-precompiled exit.cwasm' \
+	-n exit_wasm3 'wasm3 exit.wasm' \
 	--export-csv bench.csv

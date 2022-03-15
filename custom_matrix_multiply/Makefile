@@ -44,13 +44,17 @@ bin/custom_matrix_multiply.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/custom_matrix_multiply.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/custom_matrix_multiply.wasm
 	wasmtime bin/custom_matrix_multiply.wasm
 
-.PHONY: run_aot
-run_aot: bin/custom_matrix_multiply.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/custom_matrix_multiply.cwasm
 	wasmtime run --allow-precompiled bin/custom_matrix_multiply.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/custom_matrix_multiply.wasm
+	wasm3 bin/custom_matrix_multiply.wasm
 
 bin/custom_matrix_multiply.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/custom_matrix_multiply.wasm bin/custom_matrix_multiply.cwasm bin/
 	-n custom_matrix_multiply_native './bin/custom_matrix_multiply.out' \
 	-n custom_matrix_multiply_wasmtime_jit 'wasmtime run bin/custom_matrix_multiply.wasm' \
 	-n custom_matrix_multiply_wasmtime_aot 'wasmtime run --allow-precompiled bin/custom_matrix_multiply.cwasm' \
+	-n custom_matrix_multiply_wasm3 'wasm3 bin/custom_matrix_multiply.wasm' \
 	--export-csv bench.csv

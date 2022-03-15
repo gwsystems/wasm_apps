@@ -48,13 +48,17 @@ bin/pb_la_blas_gemver.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_la_blas_gemver.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_la_blas_gemver.wasm
 	wasmtime $<
 
-.PHONY: run_aot
-run_aot: bin/pb_la_blas_gemver.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_la_blas_gemver.cwasm
 	wasmtime run --allow-precompiled $<
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_la_blas_gemver.wasm
+	wasm3 bin/pb_la_blas_gemver.wasm
 
 .PHONY: run_native
 run_native: bin/pb_la_blas_gemver.out
@@ -65,4 +69,5 @@ bench.csv: bin/pb_la_blas_gemver.wasm bin/pb_la_blas_gemver.cwasm bin/pb_la_blas
 	-n pb_la_blas_gemver_native './bin/pb_la_blas_gemver.out' \
 	-n pb_la_blas_gemver_wasmtime_jit 'wasmtime run bin/pb_la_blas_gemver.wasm' \
 	-n pb_la_blas_gemver_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_blas_gemver.cwasm' \
+	-n pb_la_blas_gemver_wasm3 'wasm3 bin/pb_la_blas_gemver.wasm' \
 	--export-csv bench.csv

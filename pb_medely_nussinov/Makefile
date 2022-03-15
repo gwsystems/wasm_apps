@@ -44,13 +44,17 @@ bin/pb_medely_nussinov.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_medely_nussinov.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_medely_nussinov.wasm
 	wasmtime bin/pb_medely_nussinov.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_medely_nussinov.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_medely_nussinov.cwasm
 	wasmtime run --allow-precompiled bin/pb_medely_nussinov.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_medely_nussinov.wasm
+	wasm3 bin/pb_medely_nussinov.wasm
 
 bin/pb_medely_nussinov.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_medely_nussinov.wasm bin/pb_medely_nussinov.cwasm bin/pb_medel
 	-n pb_medely_nussinov_native './bin/pb_medely_nussinov.out' \
 	-n pb_medely_nussinov_wasmtime_jit 'wasmtime run bin/pb_medely_nussinov.wasm' \
 	-n pb_medely_nussinov_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_medely_nussinov.cwasm' \
+	-n pb_medely_nussinov_wasm3 'wasm3 bin/pb_medely_nussinov.wasm' \
 	--export-csv bench.csv

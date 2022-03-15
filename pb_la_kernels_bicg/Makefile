@@ -44,13 +44,17 @@ bin/pb_la_kernels_bicg.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_la_kernels_bicg.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_la_kernels_bicg.wasm
 	wasmtime bin/pb_la_kernels_bicg.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_la_kernels_bicg.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_la_kernels_bicg.cwasm
 	wasmtime run --allow-precompiled bin/pb_la_kernels_bicg.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_la_kernels_bicg.wasm
+	wasm3 bin/pb_la_kernels_bicg.wasm
 
 bin/pb_la_kernels_bicg.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_la_kernels_bicg.wasm bin/pb_la_kernels_bicg.cwasm bin/pb_la_ke
 	-n pb_la_kernels_bicg_native './bin/pb_la_kernels_bicg.out' \
 	-n pb_la_kernels_bicg_wasmtime_jit 'wasmtime run bin/pb_la_kernels_bicg.wasm' \
 	-n pb_la_kernels_bicg_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_kernels_bicg.cwasm' \
+	-n pb_la_kernels_bicg_wasm3 'wasm3 bin/pb_la_kernels_bicg.wasm' \
 	--export-csv bench.csv

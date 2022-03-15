@@ -48,13 +48,17 @@ bin/pb_la_blas_symm.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_la_blas_symm.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_la_blas_symm.wasm
 	wasmtime $<
 
-.PHONY: run_aot
-run_aot: bin/pb_la_blas_symm.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_la_blas_symm.cwasm
 	wasmtime run --allow-precompiled $<
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_la_blas_symm.wasm
+	wasm3 bin/pb_la_blas_symm.wasm
 
 .PHONY: run_native
 run_native: bin/pb_la_blas_symm.out
@@ -65,4 +69,5 @@ bench.csv: bin/pb_la_blas_symm.wasm bin/pb_la_blas_symm.cwasm bin/pb_la_blas_sym
 	-n pb_la_blas_symm_native './bin/pb_la_blas_symm.out' \
 	-n pb_la_blas_symm_wasmtime_jit 'wasmtime run bin/pb_la_blas_symm.wasm' \
 	-n pb_la_blas_symm_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_blas_symm.cwasm' \
+	-n pb_la_blas_symm_wasm3 'wasm3 bin/pb_la_blas_symm.wasm' \
 	--export-csv bench.csv

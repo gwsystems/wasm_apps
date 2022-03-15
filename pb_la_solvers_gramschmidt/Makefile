@@ -44,13 +44,17 @@ bin/pb_la_solvers_gramschmidt.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_la_solvers_gramschmidt.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_la_solvers_gramschmidt.wasm
 	wasmtime bin/pb_la_solvers_gramschmidt.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_la_solvers_gramschmidt.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_la_solvers_gramschmidt.cwasm
 	wasmtime run --allow-precompiled bin/pb_la_solvers_gramschmidt.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_la_solvers_gramschmidt.wasm
+	wasm3 bin/pb_la_solvers_gramschmidt.wasm
 
 bin/pb_la_solvers_gramschmidt.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_la_solvers_gramschmidt.wasm bin/pb_la_solvers_gramschmidt.cwas
 	-n pb_la_solvers_gramschmidt_native './bin/pb_la_solvers_gramschmidt.out' \
 	-n pb_la_solvers_gramschmidt_wasmtime_jit 'wasmtime run bin/pb_la_solvers_gramschmidt.wasm' \
 	-n pb_la_solvers_gramschmidt_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_gramschmidt.cwasm' \
+	-n pb_la_solvers_gramschmidt_wasm3 'wasm3 bin/pb_la_solvers_gramschmidt.wasm' \
 	--export-csv bench.csv

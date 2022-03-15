@@ -44,13 +44,17 @@ bin/pb_la_kernels_doitgen.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_la_kernels_doitgen.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_la_kernels_doitgen.wasm
 	wasmtime bin/pb_la_kernels_doitgen.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_la_kernels_doitgen.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_la_kernels_doitgen.cwasm
 	wasmtime run --allow-precompiled bin/pb_la_kernels_doitgen.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_la_kernels_doitgen.wasm
+	wasm3 bin/pb_la_kernels_doitgen.wasm
 
 bin/pb_la_kernels_doitgen.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_la_kernels_doitgen.wasm bin/pb_la_kernels_doitgen.cwasm bin/pb
 	-n pb_la_kernels_doitgen_native './bin/pb_la_kernels_doitgen.out' \
 	-n pb_la_kernels_doitgen_wasmtime_jit 'wasmtime run bin/pb_la_kernels_doitgen.wasm' \
 	-n pb_la_kernels_doitgen_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_kernels_doitgen.cwasm' \
+	-n pb_la_kernels_doitgen_wasm3 'wasm3 bin/pb_la_kernels_doitgen.wasm' \
 	--export-csv bench.csv

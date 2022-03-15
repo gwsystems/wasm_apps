@@ -44,13 +44,17 @@ bin/pb_stencils_jacobi_1d.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_stencils_jacobi_1d.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_stencils_jacobi_1d.wasm
 	wasmtime bin/pb_stencils_jacobi_1d.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_stencils_jacobi_1d.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_stencils_jacobi_1d.cwasm
 	wasmtime run --allow-precompiled bin/pb_stencils_jacobi_1d.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_stencils_jacobi_1d.wasm
+	wasm3 bin/pb_stencils_jacobi_1d.wasm
 
 bin/pb_stencils_jacobi_1d.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_stencils_jacobi_1d.wasm bin/pb_stencils_jacobi_1d.cwasm bin/pb
 	-n pb_stencils_jacobi_1d_native './bin/pb_stencils_jacobi_1d.out' \
 	-n pb_stencils_jacobi_1d_wasmtime_jit 'wasmtime run bin/pb_stencils_jacobi_1d.wasm' \
 	-n pb_stencils_jacobi_1d_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_stencils_jacobi_1d.cwasm' \
+	-n pb_stencils_jacobi_1d_wasm3 'wasm3 bin/pb_stencils_jacobi_1d.wasm' \
 	--export-csv bench.csv

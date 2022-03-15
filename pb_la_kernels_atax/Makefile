@@ -44,13 +44,17 @@ bin/pb_la_kernels_atax.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_la_kernels_atax.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_la_kernels_atax.wasm
 	wasmtime bin/pb_la_kernels_atax.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_la_kernels_atax.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_la_kernels_atax.cwasm
 	wasmtime run --allow-precompiled bin/pb_la_kernels_atax.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_la_kernels_atax.wasm
+	wasm3 bin/pb_la_kernels_atax.wasm
 
 bin/pb_la_kernels_atax.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_la_kernels_atax.wasm bin/pb_la_kernels_atax.cwasm bin/pb_la_ke
 	-n pb_la_kernels_atax_native './bin/pb_la_kernels_atax.out' \
 	-n pb_la_kernels_atax_wasmtime_jit 'wasmtime run bin/pb_la_kernels_atax.wasm' \
 	-n pb_la_kernels_atax_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_kernels_atax.cwasm' \
+	-n pb_la_kernels_atax_wasm3 'wasm3 bin/pb_la_kernels_atax.wasm' \
 	--export-csv bench.csv

@@ -44,13 +44,17 @@ bin/pb_datamining_correlation.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_datamining_correlation.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_datamining_correlation.wasm
 	wasmtime bin/pb_datamining_correlation.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_datamining_correlation.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_datamining_correlation.cwasm
 	wasmtime run --allow-precompiled bin/pb_datamining_correlation.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_datamining_correlation.wasm
+	wasm3 bin/pb_datamining_correlation.wasm
 
 bin/pb_datamining_correlation.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_datamining_correlation.wasm bin/pb_datamining_correlation.cwas
 	-n pb_datamining_correlation_native './bin/pb_datamining_correlation.out' \
 	-n pb_datamining_correlation_wasmtime_jit 'wasmtime run bin/pb_datamining_correlation.wasm' \
 	-n pb_datamining_correlation_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_datamining_correlation.cwasm' \
+	-n pb_datamining_correlation_wasm3 'wasm3 bin/pb_datamining_correlation.wasm' \
 	--export-csv bench.csv

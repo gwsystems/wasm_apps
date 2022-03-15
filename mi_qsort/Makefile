@@ -44,13 +44,17 @@ bin/mi_qsort.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/mi_qsort.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_qsort.wasm
 	wasmtime --dir=. bin/mi_qsort.wasm input_small.dat
 
-.PHONY: run_aot
-run_aot: bin/mi_qsort.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_qsort.cwasm
 	wasmtime run --dir=. --allow-precompiled bin/mi_qsort.cwasm input_small.dat
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_qsort.wasm
+	wasm3 bin/mi_qsort.wasm input_small.dat
 
 bin/mi_qsort.out: *.c
 	@mkdir -p bin
@@ -64,4 +68,6 @@ bench.csv: bin/mi_qsort.wasm bin/mi_qsort.cwasm bin/mi_qsort.out
 	hyperfine -N -w 10 \
 	-n mi_qsort_native './bin/mi_qsort.out input_small.dat' \
 	-n mi_qsort_wasmtime_jit 'wasmtime run --dir=. bin/mi_qsort.wasm input_small.dat' \
-	-n mi_qsort_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_qsort.cwasm input_small.dat' --export-csv bench.csv
+	-n mi_qsort_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_qsort.cwasm input_small.dat' \
+	-n mi_qsort_wasm3 'wasm3 bin/mi_qsort.wasm input_small.dat' \
+	--export-csv bench.csv

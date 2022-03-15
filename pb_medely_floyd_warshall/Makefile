@@ -44,13 +44,17 @@ bin/pb_medely_floyd_warshall.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_medely_floyd_warshall.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_medely_floyd_warshall.wasm
 	wasmtime bin/pb_medely_floyd_warshall.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_medely_floyd_warshall.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_medely_floyd_warshall.cwasm
 	wasmtime run --allow-precompiled bin/pb_medely_floyd_warshall.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_medely_floyd_warshall.wasm
+	wasm3 bin/pb_medely_floyd_warshall.wasm
 
 bin/pb_medely_floyd_warshall.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_medely_floyd_warshall.wasm bin/pb_medely_floyd_warshall.cwasm 
 	-n pb_medely_floyd_warshall_native './bin/pb_medely_floyd_warshall.out' \
 	-n pb_medely_floyd_warshall_wasmtime_jit 'wasmtime run bin/pb_medely_floyd_warshall.wasm' \
 	-n pb_medely_floyd_warshall_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_medely_floyd_warshall.cwasm' \
+	-n pb_medely_floyd_warshall_wasm3 'wasm3 bin/pb_medely_floyd_warshall.wasm' \
 	--export-csv bench.csv

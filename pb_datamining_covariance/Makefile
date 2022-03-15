@@ -48,13 +48,17 @@ bin/pb_datamining_covariance.out: *.c
 	@mkdir -p bin
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_datamining_covariance.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_datamining_covariance.wasm
 	wasmtime $<
 
-.PHONY: run_aot
-run_aot: bin/pb_datamining_covariance.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_datamining_covariance.cwasm
 	wasmtime run --allow-precompiled $<
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_datamining_covariance.wasm
+	wasm3 bin/pb_datamining_covariance.wasm
 
 .PHONY: run_native
 run_native: bin/pb_datamining_covariance.out
@@ -65,4 +69,5 @@ bench.csv: bin/pb_datamining_covariance.wasm bin/pb_datamining_covariance.cwasm 
 	-n pb_datamining_covariance_native './bin/pb_datamining_covariance.out' \
 	-n pb_datamining_covariance_wasmtime_jit 'wasmtime run bin/pb_datamining_covariance.wasm' \
 	-n pb_datamining_covariance_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_datamining_covariance.cwasm' \
+	-n pb_datamining_covariance_wasm3 'wasm3 bin/pb_datamining_covariance.cwasm' \
 	--export-csv bench.csv

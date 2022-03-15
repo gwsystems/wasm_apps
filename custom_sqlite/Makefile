@@ -44,13 +44,17 @@ bin/custom_sqlite.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/custom_sqlite.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/custom_sqlite.wasm
 	wasmtime bin/custom_sqlite.wasm
 
-.PHONY: run_aot
-run_aot: bin/custom_sqlite.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/custom_sqlite.cwasm
 	wasmtime run --allow-precompiled bin/custom_sqlite.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/custom_sqlite.wasm
+	wasm3 bin/custom_sqlite.wasm
 
 bin/custom_sqlite.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/custom_sqlite.wasm bin/custom_sqlite.cwasm bin/custom_sqlite.out
 	-n custom_sqlite_native './bin/custom_sqlite.out' \
 	-n custom_sqlite_wasmtime_jit 'wasmtime run bin/custom_sqlite.wasm' \
 	-n custom_sqlite_wasmtime_aot 'wasmtime run --allow-precompiled bin/custom_sqlite.cwasm' \
+	-n custom_sqlite_wasm3 'wasm3 bin/custom_sqlite.wasm' \
 	--export-csv bench.csv

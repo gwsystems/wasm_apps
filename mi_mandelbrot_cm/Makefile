@@ -44,13 +44,17 @@ bin/mi_mandelbrot_cm.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/mi_mandelbrot_cm.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_mandelbrot_cm.wasm
 	wasmtime bin/mi_mandelbrot_cm.wasm
 
-.PHONY: run_aot
-run_aot: bin/mi_mandelbrot_cm.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_mandelbrot_cm.cwasm
 	wasmtime run --allow-precompiled bin/mi_mandelbrot_cm.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_mandelbrot_cm.wasm
+	wasm3 bin/mi_mandelbrot_cm.wasm
 
 bin/mi_mandelbrot_cm.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/mi_mandelbrot_cm.wasm bin/mi_mandelbrot_cm.cwasm bin/mi_mandelbro
 	-n mi_mandelbrot_cm_native './bin/mi_mandelbrot_cm.out' \
 	-n mi_mandelbrot_cm_wasmtime_jit 'wasmtime run bin/mi_mandelbrot_cm.wasm' \
 	-n mi_mandelbrot_cm_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_mandelbrot_cm.cwasm' \
+	-n mi_mandelbrot_cm_wasm3 'wasm3 bin/mi_mandelbrot_cm.wasm' \
 	--export-csv bench.csv

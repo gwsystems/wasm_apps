@@ -44,13 +44,17 @@ bin/pb_medely_deriche.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_medely_deriche.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_medely_deriche.wasm
 	wasmtime bin/pb_medely_deriche.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_medely_deriche.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_medely_deriche.cwasm
 	wasmtime run --allow-precompiled bin/pb_medely_deriche.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_medely_deriche.wasm
+	wasm3 bin/pb_medely_deriche.wasm
 
 bin/pb_medely_deriche.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_medely_deriche.wasm bin/pb_medely_deriche.cwasm bin/pb_medely_
 	-n pb_medely_deriche_native './bin/pb_medely_deriche.out' \
 	-n pb_medely_deriche_wasmtime_jit 'wasmtime run bin/pb_medely_deriche.wasm' \
 	-n pb_medely_deriche_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_medely_deriche.cwasm' \
+	-n pb_medely_deriche_wasm3 'wasm3 bin/pb_medely_deriche.cwasm' \
 	--export-csv bench.csv

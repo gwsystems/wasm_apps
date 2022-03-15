@@ -44,13 +44,17 @@ bin/pb_la_solvers_lu.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_la_solvers_lu.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_la_solvers_lu.wasm
 	wasmtime bin/pb_la_solvers_lu.wasm
 
-.PHONY: run_aot
-run_aot: bin/pb_la_solvers_lu.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_la_solvers_lu.cwasm
 	wasmtime run --allow-precompiled bin/pb_la_solvers_lu.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_la_solvers_lu.wasm
+	wasm3 bin/pb_la_solvers_lu.wasm
 
 bin/pb_la_solvers_lu.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/pb_la_solvers_lu.wasm bin/pb_la_solvers_lu.cwasm bin/pb_la_solver
 	-n pb_la_solvers_lu_native './bin/pb_la_solvers_lu.out' \
 	-n pb_la_solvers_lu_wasmtime_jit 'wasmtime run bin/pb_la_solvers_lu.wasm' \
 	-n pb_la_solvers_lu_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_lu.cwasm' \
+	-n pb_la_solvers_lu_wasm3 'wasm3 bin/pb_la_solvers_lu.wasm' \
 	--export-csv bench.csv

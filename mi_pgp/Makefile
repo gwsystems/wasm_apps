@@ -44,13 +44,17 @@ bin/mi_pgp.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/mi_pgp.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_pgp.wasm
 	wasmtime bin/mi_pgp.wasm '-sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu'
 
-.PHONY: run_aot
-run_aot: bin/mi_pgp.cwasm
-	wasmtime run --allow-precompiled bin/mi_pgp.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_pgp.cwasm
+	wasmtime run --allow-precompiled bin/mi_pgp.cwasm '-sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu'
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_pgp.wasm
+	wasm3 bin/mi_pgp.wasm -sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu
 
 bin/mi_pgp.out: *.c
 	@mkdir -p bin
@@ -62,7 +66,8 @@ run_native: bin/mi_pgp.out
 
 bench.csv: bin/mi_pgp.wasm bin/mi_pgp.cwasm bin/mi_pgp.out
 	hyperfine -N -w 10 \
-	-n mi_pgp_native './bin/mi_pgp.out' \
-	-n mi_pgp_wasmtime_jit 'wasmtime run bin/mi_pgp.wasm' \
-	-n mi_pgp_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_pgp.cwasm' \
+	-n mi_pgp_native './bin/mi_pgp.out -sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu' \
+	-n mi_pgp_wasmtime_jit 'wasmtime run bin/mi_pgp.wasm -sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu' \
+	-n mi_pgp_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_pgp.cwasm -sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu' \
+	-n mi_pgp_wasm3 'wasm3 bin/mi_pgp.wasm -sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu' \
 	--export-csv bench.csv

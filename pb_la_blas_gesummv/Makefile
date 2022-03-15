@@ -48,13 +48,17 @@ bin/pb_la_blas_gesummv.out: *.c
 	@mkdir -p bin
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
-.PHONY: run_jit
-run_jit: bin/pb_la_blas_gesummv.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/pb_la_blas_gesummv.wasm
 	wasmtime $<
 
-.PHONY: run_aot
-run_aot: bin/pb_la_blas_gesummv.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/pb_la_blas_gesummv.cwasm
 	wasmtime run --allow-precompiled $<
+
+.PHONY: run_wasm3
+run_wasm3: bin/pb_la_blas_gesummv.wasm
+	wasm3 bin/pb_la_blas_gesummv.wasm
 
 .PHONY: run_native
 run_native: bin/pb_la_blas_gesummv.out
@@ -65,4 +69,5 @@ bench.csv: bin/pb_la_blas_gesummv.wasm bin/pb_la_blas_gesummv.cwasm bin/pb_la_bl
 	-n pb_la_blas_gesummv_native './bin/pb_la_blas_gesummv.out' \
 	-n pb_la_blas_gesummv_wasmtime_jit 'wasmtime run bin/pb_la_blas_gesummv.wasm' \
 	-n pb_la_blas_gesummv_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_blas_gesummv.cwasm' \
+	-n pb_la_blas_gesummv_wasm3 'wasm3 bin/pb_la_blas_gesummv.wasm' \
 	--export-csv bench.csv

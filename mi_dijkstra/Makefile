@@ -44,13 +44,17 @@ bin/mi_dijkstra.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/mi_dijkstra.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_dijkstra.wasm
 	wasmtime --dir=. bin/mi_dijkstra.wasm input.dat
 
-.PHONY: run_aot
-run_aot: bin/mi_dijkstra.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_dijkstra.cwasm
 	wasmtime run --dir=. --allow-precompiled bin/mi_dijkstra.cwasm input.dat
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_dijkstra.wasm
+	wasm3 bin/mi_dijkstra.wasm input.dat
 
 bin/mi_dijkstra.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/mi_dijkstra.wasm bin/mi_dijkstra.cwasm bin/mi_dijkstra.out
 	-n mi_dijkstra './bin/mi_dijkstra.out input.dat' \
 	-n mi_dijkstra_wasmtime_jit 'wasmtime --dir=. bin/mi_dijkstra.wasm input.dat' \
 	-n mi_dijkstra_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_dijkstra.cwasm input.dat' \
+	-n mi_dijkstra_wasm3 'wasm3 bin/mi_dijkstra.wasm input.dat' \
 	--export-csv bench.csv

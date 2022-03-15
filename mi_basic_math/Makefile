@@ -44,13 +44,17 @@ bin/mi_basic_math.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/mi_basic_math.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_basic_math.wasm
 	wasmtime bin/mi_basic_math.wasm
 
-.PHONY: run_aot
-run_aot: bin/mi_basic_math.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_basic_math.cwasm
 	wasmtime run --allow-precompiled bin/mi_basic_math.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_basic_math.wasm
+	wasm3 bin/mi_basic_math.wasm
 
 bin/mi_basic_math.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/mi_basic_math.wasm bin/mi_basic_math.cwasm bin/mi_basic_math.out
 	-n mi_basic_math_native './bin/mi_basic_math.out' \
 	-n mi_basic_math_wasmtime_jit 'wasmtime run bin/mi_basic_math.wasm' \
 	-n mi_basic_math_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_basic_math.cwasm' \
+	-n mi_basic_math_wasm3 'wasm3 bin/mi_basic_math.wasm' \
 	--export-csv bench.csv

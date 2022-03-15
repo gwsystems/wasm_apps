@@ -49,13 +49,17 @@ bin/custom_binarytrees.out: *.c
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
 # Takes an integer argument
-.PHONY: run_jit
-run_jit: bin/custom_binarytrees.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/custom_binarytrees.wasm
 	wasmtime bin/custom_binarytrees.wasm 16
 
-.PHONY: run_aot
-run_aot: bin/custom_binarytrees.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/custom_binarytrees.cwasm
 	wasmtime run --allow-precompiled bin/custom_binarytrees.cwasm 16
+
+.PHONY: run_wasm3
+run_wasm3: bin/custom_binarytrees.wasm
+	wasm3 bin/custom_binarytrees.wasm 16
 
 # Takes an integer argument
 run_native: bin/custom_binarytrees.out
@@ -66,4 +70,5 @@ bench.csv: bin/custom_binarytrees.wasm bin/custom_binarytrees.cwasm bin/custom_b
 	-n custom_binarytrees_native './bin/custom_binarytrees.out 16' \
 	-n custom_binarytrees_wasmtime_jit 'wasmtime run bin/custom_binarytrees.wasm 16' \
 	-n custom_binarytrees_wasmtime_aot 'wasmtime run --allow-precompiled bin/custom_binarytrees.cwasm 16' \
+	-n custom_binarytrees_wasm3 'wasm3 bin/custom_binarytrees.wasm 16' \
 	--export-csv bench.csv

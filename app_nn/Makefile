@@ -38,13 +38,17 @@ bin/app_nn.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/app_nn.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/app_nn.wasm
 	wasmtime bin/app_nn.wasm
 
-.PHONY: run_aot
-run_aot: bin/app_nn.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/app_nn.cwasm
 	wasmtime run --allow-precompiled bin/app_nn.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/app_nn.wasm
+	wasm3 bin/app_nn.wasm
 
 bin/app_nn.out: *.c
 	@${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
@@ -59,4 +63,9 @@ clean:
 	@rm -f bench.csv
 
 bench.csv: bin/app_nn.wasm bin/app_nn.cwasm bin/app_nn.out
-	hyperfine -N -w 10 -n app_nn_native './bin/app_nn.out' -n app_nn_wasmtime_jit 'wasmtime run bin/app_nn.wasm' -n app_nn_wasmtime_aot 'wasmtime run --allow-precompiled bin/app_nn.cwasm' --export-csv bench.csv
+	hyperfine -N -w 10 \
+	-n app_nn_native './bin/app_nn.out' \
+	-n app_nn_wasmtime_jit 'wasmtime run bin/app_nn.wasm' \
+	-n app_nn_wasmtime_aot 'wasmtime run --allow-precompiled bin/app_nn.cwasm' \
+	-n app_nn_wasm3 'wasm3 bin/app_nn.wasm' \
+	--export-csv bench.csv

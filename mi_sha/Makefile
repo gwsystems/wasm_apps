@@ -44,13 +44,17 @@ bin/mi_sha.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/mi_sha.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_sha.wasm
 	wasmtime --dir=. bin/mi_sha.wasm input_large.asc
 
-.PHONY: run_aot
-run_aot: bin/mi_sha.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_sha.cwasm
 	wasmtime run --dir=. --allow-precompiled bin/mi_sha.cwasm input_large.asc
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_sha.wasm
+	wasm3 bin/mi_sha.wasm input_large.asc
 
 bin/mi_sha.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/mi_sha.wasm bin/mi_sha.cwasm bin/mi_sha.out
 	-n mi_sha_native './bin/mi_sha.out' \
 	-n mi_sha_wasmtime_jit 'wasmtime run --dir=. bin/mi_sha.wasm input_large.asc' \
 	-n mi_sha_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_sha.cwasm input_large.asc' \
+	-n mi_sha_wasm3 'wasm3 bin/mi_sha.wasm input_large.asc' \
 	--export-csv bench.csv

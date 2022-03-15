@@ -44,13 +44,17 @@ bin/custom_memcmp.wasm: *.c
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
-.PHONY: run_jit
-run_jit: bin/custom_memcmp.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/custom_memcmp.wasm
 	wasmtime bin/custom_memcmp.wasm
 
-.PHONY: run_aot
-run_aot: bin/custom_memcmp.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/custom_memcmp.cwasm
 	wasmtime run --allow-precompiled bin/custom_memcmp.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/custom_memcmp.wasm
+	wasm3 bin/custom_memcmp.wasm
 
 bin/custom_memcmp.out: *.c
 	@mkdir -p bin
@@ -65,4 +69,5 @@ bench.csv: bin/custom_memcmp.wasm bin/custom_memcmp.cwasm bin/custom_memcmp.out
 	-n custom_memcmp_native './bin/custom_memcmp.out' \
 	-n custom_memcmp_wasmtime_jit 'wasmtime run bin/custom_memcmp.wasm' \
 	-n custom_memcmp_wasmtime_aot 'wasmtime run --allow-precompiled bin/custom_memcmp.cwasm' \
+	-n custom_memcmp_wasm3 'wasm3 bin/custom_memcmp.wasm' \
 	--export-csv bench.csv

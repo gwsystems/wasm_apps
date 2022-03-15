@@ -38,13 +38,17 @@ bin/mi_patricia_cm.wasm: *.c
 	@mkdir -p bin
 	${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
 
-.PHONY: run_jit
-run_jit: bin/mi_patricia_cm.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_patricia_cm.wasm
 	wasmtime --dir=. bin/mi_patricia_cm.wasm large.udp
 
-.PHONY: run_aot
-run_aot: bin/mi_patricia_cm.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_patricia_cm.cwasm
 	wasmtime run --allow-precompiled bin/mi_patricia_cm.cwasm large.udp
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_patricia_cm.wasm
+	wasm3 bin/mi_patricia_cm.wasm large.udp
 
 %.wat: %.wasm
 	wasm2wat $< -o $@
@@ -63,6 +67,7 @@ run_native: bin/mi_patricia_cm.out
 bench.csv: bin/mi_patricia_cm.wasm bin/mi_patricia_cm.cwasm bin/mi_patricia_cm.out
 	hyperfine -N -w 10 \
 	-n mi_patricia_cm_native './bin/mi_patricia_cm.out large.udp' \
-	-n mi_patricia_cm_wasmtime_jit 'wasmtime run bin/mi_patricia_cm.wasm  large.udp' \
-	-n mi_patricia_cm_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_patricia_cm.cwasm  large.udp' \
+	-n mi_patricia_cm_wasmtime_jit 'wasmtime run bin/mi_patricia_cm.wasm large.udp' \
+	-n mi_patricia_cm_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_patricia_cm.cwasm large.udp' \
+	-n mi_patricia_cm_wasm3 'wasm3 bin/mi_patricia_cm.wasm large.udp' \
 	--export-csv bench.csv

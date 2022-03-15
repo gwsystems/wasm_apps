@@ -48,13 +48,17 @@ bin/app_tinycrypt.out: *.c
 	@mkdir -p bin
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
-.PHONY: run_jit
-run_jit: bin/app_tinycrypt.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/app_tinycrypt.wasm
 	wasmtime bin/app_tinycrypt.wasm
 
-.PHONY: run_aot
-run_aot: bin/app_tinycrypt.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/app_tinycrypt.cwasm
 	wasmtime run --allow-precompiled bin/app_tinycrypt.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: bin/app_tinycrypt.wasm
+	wasm3 bin/app_tinycrypt.wasm
 
 .PHONY: run_native
 run_native: bin/app_tinycrypt.out
@@ -65,4 +69,5 @@ bench.csv: bin/app_tinycrypt.wasm bin/app_tinycrypt.cwasm bin/app_tinycrypt.out
 	-n app_tinycrypt_native './bin/app_tinycrypt.out' \
 	-n app_tinycrypt_wasmtime_jit 'wasmtime run bin/app_tinycrypt.wasm' \
 	-n app_tinycrypt_wasmtime_aot 'wasmtime run --allow-precompiled bin/app_tinycrypt.cwasm' \
+	-n app_tinycrypt_wasm3 'wasm3 bin/app_tinycrypt.wasm' \
 	--export-csv bench.csv

@@ -49,13 +49,17 @@ clean:
 	
 # Serverless style app that uses stdin and stdout
 # echo "10" | make run
-.PHONY: run_jit
-run_jit: echo.wasm
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: echo.wasm
 	@wasmtime echo.wasm
 
-.PHONY: run_aot
-run_aot: echo.cwasm
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: echo.cwasm
 	wasmtime run --allow-precompiled echo.cwasm
+
+.PHONY: run_wasm3
+run_wasm3: echo.wasm
+	wasm3 echo.wasm
 
 .PHONY: run_native
 run_native: echo.out
@@ -66,4 +70,5 @@ bench.csv: echo.wasm echo.cwasm echo.out
 	-n echo_native './echo.out' \
 	-n echo_wasmtime_jit 'wasmtime run echo.wasm' \
 	-n echo_wasmtime_aot 'wasmtime run --allow-precompiled echo.cwasm' \
+	-n echo_wasm3 'wasm3 echo.wasm' \
 	--export-csv bench.csv
