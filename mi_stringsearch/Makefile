@@ -27,11 +27,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/mi_stringsearch.out \
-	bin/mi_stringsearch.wasm
+	bin/mi_stringsearch.wasm \
+	bin/mi_stringsearch.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/mi_stringsearch.wasm: *.c
 	@mkdir -p bin
@@ -40,9 +42,16 @@ bin/mi_stringsearch.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/mi_stringsearch.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/mi_stringsearch.wasm
 	wasmtime bin/mi_stringsearch.wasm
+
+.PHONY: run_aot
+run_aot: bin/mi_stringsearch.cwasm
+	wasmtime run --allow-precompiled bin/mi_stringsearch.cwasm
 
 bin/mi_stringsearch.out: *.c
 	@mkdir -p bin
@@ -51,3 +60,10 @@ bin/mi_stringsearch.out: *.c
 .PHONY: run_native
 run_native: bin/mi_stringsearch.out
 	./bin/mi_stringsearch.out
+
+bench.csv: bin/mi_stringsearch.wasm bin/mi_stringsearch.cwasm bin/mi_stringsearch.out
+	hyperfine -N -w 10 \
+	-n mi_stringsearch_native './bin/mi_stringsearch.out' \
+	-n mi_stringsearch_wasmtime_jit 'wasmtime run bin/mi_stringsearch.wasm' \
+	-n mi_stringsearch_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_stringsearch.cwasm' \
+	--export-csv bench.csv

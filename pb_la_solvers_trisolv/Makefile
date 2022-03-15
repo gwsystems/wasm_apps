@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/pb_la_solvers_trisolv.out \
-	bin/pb_la_solvers_trisolv.wasm
+	bin/pb_la_solvers_trisolv.wasm \
+	bin/pb_la_solvers_trisolv.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/pb_la_solvers_trisolv.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/pb_la_solvers_trisolv.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/pb_la_solvers_trisolv.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/pb_la_solvers_trisolv.wasm
 	wasmtime bin/pb_la_solvers_trisolv.wasm
+
+.PHONY: run_aot
+run_aot: bin/pb_la_solvers_trisolv.cwasm
+	wasmtime run --allow-precompiled bin/pb_la_solvers_trisolv.cwasm
 
 bin/pb_la_solvers_trisolv.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/pb_la_solvers_trisolv.out: *.c
 .PHONY: run_native
 run_native: bin/pb_la_solvers_trisolv.out
 	./bin/pb_la_solvers_trisolv.out
+
+bench.csv: bin/pb_la_solvers_trisolv.wasm bin/pb_la_solvers_trisolv.cwasm bin/pb_la_solvers_trisolv.out
+	hyperfine -N -w 10 \
+	-n pb_la_solvers_trisolv_native './bin/pb_la_solvers_trisolv.out' \
+	-n pb_la_solvers_trisolv_wasmtime_jit 'wasmtime run bin/pb_la_solvers_trisolv.wasm' \
+	-n pb_la_solvers_trisolv_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_trisolv.cwasm' \
+	--export-csv bench.csv

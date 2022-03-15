@@ -25,8 +25,9 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 
 .PHONY: all
 all: \
-	bin/exit.out \
-	bin/exit.wasm
+	exit.out \
+	exit.wasm \
+	exit.cwasm
 
 exit.out: main.c
 	@${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
@@ -37,17 +38,31 @@ exit.wasm: main.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
 .PHONY: clean
 clean:
 	@rm -f exit.wasm 
 	@rm -f exit.out
+	@rm -f bench.csv
 
 # Should return 0 exit status
-.PHONY: run
-run: exit.wasm
+.PHONY: run_jit
+run_jit: exit.wasm
 	@wasmtime exit.wasm
+
+.PHONY: run_aot
+run_aot: exit.cwasm
+	wasmtime run --allow-precompiled exit.cwasm
 
 .PHONY: run_native
 run_native: exit.out
 	@./exit.out
 
+bench.csv: exit.wasm exit.cwasm exit.out
+	hyperfine -N -w 10 \
+	-n exit_native './exit.out' \
+	-n exit_wasmtime_jit 'wasmtime run exit.wasm' \
+	-n exit_wasmtime_aot 'wasmtime run --allow-precompiled exit.cwasm' \
+	--export-csv bench.csv

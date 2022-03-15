@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/custom_sqlite.out \
-	bin/custom_sqlite.wasm
+	bin/custom_sqlite.wasm \
+	bin/custom_sqlite.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/custom_sqlite.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/custom_sqlite.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/custom_sqlite.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/custom_sqlite.wasm
 	wasmtime bin/custom_sqlite.wasm
+
+.PHONY: run_aot
+run_aot: bin/custom_sqlite.cwasm
+	wasmtime run --allow-precompiled bin/custom_sqlite.cwasm
 
 bin/custom_sqlite.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/custom_sqlite.out: *.c
 .PHONY: run_native
 run_native: bin/custom_sqlite.out
 	./bin/custom_sqlite.out
+
+bench.csv: bin/custom_sqlite.wasm bin/custom_sqlite.cwasm bin/custom_sqlite.out
+	hyperfine -N -w 10 \
+	-n custom_sqlite_native './bin/custom_sqlite.out' \
+	-n custom_sqlite_wasmtime_jit 'wasmtime run bin/custom_sqlite.wasm' \
+	-n custom_sqlite_wasmtime_aot 'wasmtime run --allow-precompiled bin/custom_sqlite.cwasm' \
+	--export-csv bench.csv

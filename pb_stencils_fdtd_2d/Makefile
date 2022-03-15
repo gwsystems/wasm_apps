@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/pb_stencils_fdtd_2d.out \
-	bin/pb_stencils_fdtd_2d.wasm
+	bin/pb_stencils_fdtd_2d.wasm \
+	bin/pb_stencils_fdtd_2d.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/pb_stencils_fdtd_2d.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/pb_stencils_fdtd_2d.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/pb_stencils_fdtd_2d.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/pb_stencils_fdtd_2d.wasm
 	wasmtime bin/pb_stencils_fdtd_2d.wasm
+
+.PHONY: run_aot
+run_aot: bin/pb_stencils_fdtd_2d.cwasm
+	wasmtime run --allow-precompiled bin/pb_stencils_fdtd_2d.cwasm
 
 bin/pb_stencils_fdtd_2d.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/pb_stencils_fdtd_2d.out: *.c
 .PHONY: run_native
 run_native: bin/pb_stencils_fdtd_2d.out
 	./bin/pb_stencils_fdtd_2d.out
+
+bench.csv: bin/pb_stencils_fdtd_2d.wasm bin/pb_stencils_fdtd_2d.cwasm bin/pb_stencils_fdtd_2d.out
+	hyperfine -N -w 10 \
+	-n pb_stencils_fdtd_2d_native './bin/pb_stencils_fdtd_2d.out' \
+	-n pb_stencils_fdtd_2d_wasmtime_jit 'wasmtime run bin/pb_stencils_fdtd_2d.wasm' \
+	-n pb_stencils_fdtd_2d_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_stencils_fdtd_2d.cwasm' \
+	--export-csv bench.csv

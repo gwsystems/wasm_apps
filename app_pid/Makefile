@@ -26,7 +26,8 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/app_pid.out \
-	bin/app_pid.wasm
+	bin/app_pid.wasm \
+	bin/app_pid.cwasm
 
 bin/app_pid.wasm: *.cpp
 	mkdir -p bin
@@ -35,13 +36,20 @@ bin/app_pid.wasm: *.cpp
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
 bin/app_pid.out: *.cpp
 	mkdir -p bin
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
-.PHONY: run
-run: bin/app_pid.wasm
+.PHONY: run_jit
+run_jit: bin/app_pid.wasm
 	wasmtime bin/app_pid.wasm
+
+.PHONY: run_aot
+run_aot: bin/app_pid.cwasm
+	wasmtime run --allow-precompiled bin/app_pid.cwasm
 
 .PHONY: run_native
 run_native: bin/app_pid.out
@@ -50,3 +58,11 @@ run_native: bin/app_pid.out
 .PHONY: clean
 clean:
 	rm -rf bin/*
+	@rm -f bench.csv
+
+bench.csv: bin/app_pid.wasm bin/app_pid.cwasm bin/app_pid.out
+	hyperfine -N -w 10 \
+	-n app_pid_native './bin/app_pid.out' \
+	-n app_pid_wasmtime_jit 'wasmtime run bin/app_pid.wasm' \
+	-n app_pid_wasmtime_aot 'wasmtime run --allow-precompiled bin/app_pid.cwasm' \
+	--export-csv bench.csv

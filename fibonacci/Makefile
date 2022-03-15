@@ -26,7 +26,8 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	fibonacci.out \
-	fibonacci.wasm
+	fibonacci.wasm \
+	fibonacci.cwasm
 
 fibonacci.wasm: main.c
 	@${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
@@ -34,19 +35,34 @@ fibonacci.wasm: main.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
 fibonacci.out: main.c
 	@${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 .PHONY: clean
 clean:
 	@rm -f fibonacci.wasm
 	@rm -f fibonacci.out
+	@rm -f bench.csv
 
 # Serverless style app that uses stdin and stdout
 # echo "10" | make run
-.PHONY: run
-run: fibonacci.wasm
+.PHONY: run_jit
+run_jit: fibonacci.wasm
 	@wasmtime fibonacci.wasm
+
+.PHONY: run_aot
+run_aot: fibonacci.cwasm
+	wasmtime run --allow-precompiled fibonacci.cwasm
 
 .PHONY: run_native
 run_native: fibonacci.out
 	@./fibonacci.out
+
+bench.csv: fibonacci.wasm fibonacci.cwasm fibonacci.out
+	hyperfine -N -w 10 \
+	-n fibonacci_native './fibonacci.out' \
+	-n fibonacci_wasmtime_jit 'wasmtime run fibonacci.wasm' \
+	-n fibonacci_wasmtime_aot 'wasmtime run --allow-precompiled fibonacci.cwasm' \
+	--export-csv bench.csv

@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/pb_la_kernels_2mm.out \
-	bin/pb_la_kernels_2mm.wasm
+	bin/pb_la_kernels_2mm.wasm \
+	bin/pb_la_kernels_2mm.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/pb_la_kernels_2mm.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/pb_la_kernels_2mm.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/pb_la_kernels_2mm.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/pb_la_kernels_2mm.wasm
 	wasmtime bin/pb_la_kernels_2mm.wasm
+
+.PHONY: run_aot
+run_aot: bin/pb_la_kernels_2mm.cwasm
+	wasmtime run --allow-precompiled bin/pb_la_kernels_2mm.cwasm
 
 bin/pb_la_kernels_2mm.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/pb_la_kernels_2mm.out: *.c
 .PHONY: run_native
 run_native: bin/pb_la_kernels_2mm.out
 	./bin/pb_la_kernels_2mm.out
+
+bench.csv: bin/pb_la_kernels_2mm.wasm bin/pb_la_kernels_2mm.cwasm bin/pb_la_kernels_2mm.out
+	hyperfine -N -w 10 \
+	-n pb_la_kernels_2mm_native './bin/pb_la_kernels_2mm.out' \
+	-n pb_la_kernels_2mm_wasmtime_jit 'wasmtime run bin/pb_la_kernels_2mm.wasm' \
+	-n pb_la_kernels_2mm_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_kernels_2mm.cwasm' \
+	--export-csv bench.csv

@@ -25,12 +25,14 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 
 .PHONY: all
 all: \
+	bin/mi_susan.out \
 	bin/mi_susan.wasm \
-	bin/mi_susan.wasm
+	bin/mi_susan.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/mi_susan.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/mi_susan.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/mi_susan.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/mi_susan.wasm
 	wasmtime --dir=. bin/mi_susan.wasm input_large.pgm output.pgm -s
+
+.PHONY: run_aot
+run_aot: bin/mi_susan.cwasm
+	wasmtime run --dir=. --allow-precompiled bin/mi_susan.cwasm input_large.pgm output.pgm -s
 
 bin/mi_susan.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/mi_susan.out: *.c
 .PHONY: run_native
 run_native: bin/mi_susan.out
 	./bin/mi_susan.out input_large.pgm output.pgm -s
+
+bench.csv: bin/mi_susan.wasm bin/mi_susan.cwasm bin/mi_susan.out
+	hyperfine -N -w 10 \
+	-n mi_susan_native './bin/mi_susan.out' \
+	-n mi_susan_wasmtime_jit 'wasmtime run bin/mi_susan.wasm' \
+	-n mi_susan_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_susan.cwasm' \
+	--export-csv bench.csv

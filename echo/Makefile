@@ -25,14 +25,18 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 
 .PHONY: all
 all: \
-	bin/echo.out \
-	bin/echo.wasm
+	echo.out \
+	echo.wasm \
+	echo.cwasm
 
 echo.wasm: main.c
 	@${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
 
 %.wat: %.wasm
 	wasm2wat $< -o $@
+
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
 
 echo.out: main.c
 	@${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
@@ -41,13 +45,25 @@ echo.out: main.c
 clean:
 	@rm -f echo.out
 	@rm -f echo.wasm
+	@rm -f bench.csv
 	
 # Serverless style app that uses stdin and stdout
 # echo "10" | make run
-.PHONY: run
-run: echo.wasm
+.PHONY: run_jit
+run_jit: echo.wasm
 	@wasmtime echo.wasm
+
+.PHONY: run_aot
+run_aot: echo.cwasm
+	wasmtime run --allow-precompiled echo.cwasm
 
 .PHONY: run_native
 run_native: echo.out
 	@./echo.out
+
+bench.csv: echo.wasm echo.cwasm echo.out
+	hyperfine -N -w 10 \
+	-n echo_native './echo.out' \
+	-n echo_wasmtime_jit 'wasmtime run echo.wasm' \
+	-n echo_wasmtime_aot 'wasmtime run --allow-precompiled echo.cwasm' \
+	--export-csv bench.csv

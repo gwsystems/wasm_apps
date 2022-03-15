@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/pb_la_blas_gemm.out \
-	bin/pb_la_blas_gemm.wasm
+	bin/pb_la_blas_gemm.wasm \
+	bin/pb_la_blas_gemm.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/pb_la_blas_gemm.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/pb_la_blas_gemm.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
 .PHONY: run
-run: bin/pb_la_blas_gemm.wasm
+run_jit: bin/pb_la_blas_gemm.wasm
 	wasmtime bin/pb_la_blas_gemm.wasm
+
+.PHONY: run_aot
+run_aot: bin/pb_la_blas_gemm.cwasm
+	wasmtime run --allow-precompiled bin/pb_la_blas_gemm.cwasm
 
 bin/pb_la_blas_gemm.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/pb_la_blas_gemm.out: *.c
 .PHONY: run_native
 run_native: bin/pb_la_blas_gemm.out
 	./bin/pb_la_blas_gemm.out
+
+bench.csv: bin/pb_la_blas_gemm.wasm bin/pb_la_blas_gemm.cwasm bin/pb_la_blas_gemm.out
+	hyperfine -N -w 10 \
+	-n pb_la_blas_gemm_native './bin/pb_la_blas_gemm.out' \
+	-n pb_la_blas_gemm_wasmtime_jit 'wasmtime run bin/pb_la_blas_gemm.wasm' \
+	-n pb_la_blas_gemm_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_blas_gemm.cwasm' \
+	--export-csv bench.csv

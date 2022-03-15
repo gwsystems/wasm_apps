@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/pb_medely_nussinov.out \
-	bin/pb_medely_nussinov.wasm
+	bin/pb_medely_nussinov.wasm \
+	bin/pb_medely_nussinov.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/pb_medely_nussinov.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/pb_medely_nussinov.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/pb_medely_nussinov.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/pb_medely_nussinov.wasm
 	wasmtime bin/pb_medely_nussinov.wasm
+
+.PHONY: run_aot
+run_aot: bin/pb_medely_nussinov.cwasm
+	wasmtime run --allow-precompiled bin/pb_medely_nussinov.cwasm
 
 bin/pb_medely_nussinov.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/pb_medely_nussinov.out: *.c
 .PHONY: run_native
 run_native: bin/pb_medely_nussinov.out
 	./bin/pb_medely_nussinov.out
+
+bench.csv: bin/pb_medely_nussinov.wasm bin/pb_medely_nussinov.cwasm bin/pb_medely_nussinov.out
+	hyperfine -N -w 10 \
+	-n pb_medely_nussinov_native './bin/pb_medely_nussinov.out' \
+	-n pb_medely_nussinov_wasmtime_jit 'wasmtime run bin/pb_medely_nussinov.wasm' \
+	-n pb_medely_nussinov_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_medely_nussinov.cwasm' \
+	--export-csv bench.csv

@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/pb_stencils_adi.out \
-	bin/pb_stencils_adi.wasm
+	bin/pb_stencils_adi.wasm \
+	bin/pb_stencils_adi.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/pb_stencils_adi.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/pb_stencils_adi.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/pb_stencils_adi.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/pb_stencils_adi.wasm
 	wasmtime bin/pb_stencils_adi.wasm
+
+.PHONY: run_aot
+run_aot: bin/pb_stencils_adi.cwasm
+	wasmtime run --allow-precompiled bin/pb_stencils_adi.cwasm
 
 bin/pb_stencils_adi.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/pb_stencils_adi.out: *.c
 .PHONY: run_native
 run_native: bin/pb_stencils_adi.out
 	./bin/pb_stencils_adi.out
+
+bench.csv: bin/pb_stencils_adi.wasm bin/pb_stencils_adi.cwasm bin/pb_stencils_adi.out
+	hyperfine -N -w 10 \
+	-n pb_stencils_adi_native './bin/pb_stencils_adi.out' \
+	-n pb_stencils_adi_wasmtime_jit 'wasmtime run bin/pb_stencils_adi.wasm' \
+	-n pb_stencils_adi_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_stencils_adi.cwasm' \
+	--export-csv bench.csv

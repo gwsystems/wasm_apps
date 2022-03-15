@@ -1,3 +1,5 @@
 dist/*
 *.wasm
+*.cwasm
 *.out
+bench.csv

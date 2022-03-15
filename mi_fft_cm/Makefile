@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/mi_fft_cm.out \
-	bin/mi_fft_cm.wasm
+	bin/mi_fft_cm.wasm \
+	bin/mi_fft_cm.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/mi_fft_cm.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/mi_fft_cm.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/mi_fft_cm.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/mi_fft_cm.wasm
 	wasmtime bin/mi_fft_cm.wasm 8 32768
+
+.PHONY: run_aot
+run_aot: bin/mi_fft_cm.cwasm
+	wasmtime run --allow-precompiled bin/mi_fft_cm.cwasm 8 32768
 
 bin/mi_fft_cm.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/mi_fft_cm.out: *.c
 .PHONY: run_native
 run_native: bin/mi_fft_cm.out
 	./bin/mi_fft_cm.out 8 32768
+
+bench.csv: bin/mi_fft_cm.wasm bin/mi_fft_cm.cwasm bin/mi_fft_cm.out
+	hyperfine -N -w 10 \
+	-n mi_fft_cm_native './bin/mi_fft_cm.out 8 32768' \
+	-n mi_fft_cm_wasmtime_jit 'wasmtime run bin/mi_fft_cm.wasm 8 32768' \
+	-n mi_fft_cm_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_fft_cm.cwasm 8 32768' \
+	--export-csv bench.csv

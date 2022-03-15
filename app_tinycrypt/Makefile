@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/app_tinycrypt.out \
-	bin/app_tinycrypt.wasm
+	bin/app_tinycrypt.wasm \
+	bin/app_tinycrypt.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/app_tinycrypt.wasm: *.c
 	@mkdir -p bin
@@ -39,14 +41,28 @@ bin/app_tinycrypt.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
 bin/app_tinycrypt.out: *.c
 	@mkdir -p bin
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
-.PHONY: run
-run: bin/app_tinycrypt.wasm
+.PHONY: run_jit
+run_jit: bin/app_tinycrypt.wasm
 	wasmtime bin/app_tinycrypt.wasm
+
+.PHONY: run_aot
+run_aot: bin/app_tinycrypt.cwasm
+	wasmtime run --allow-precompiled bin/app_tinycrypt.cwasm
 
 .PHONY: run_native
 run_native: bin/app_tinycrypt.out
 	./bin/app_tinycrypt.out
+
+bench.csv: bin/app_tinycrypt.wasm bin/app_tinycrypt.cwasm bin/app_tinycrypt.out
+	hyperfine -N -w 10 \
+	-n app_tinycrypt_native './bin/app_tinycrypt.out' \
+	-n app_tinycrypt_wasmtime_jit 'wasmtime run bin/app_tinycrypt.wasm' \
+	-n app_tinycrypt_wasmtime_aot 'wasmtime run --allow-precompiled bin/app_tinycrypt.cwasm' \
+	--export-csv bench.csv

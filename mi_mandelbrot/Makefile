@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/mi_mandelbrot.out \
-	bin/mi_mandelbrot.wasm
+	bin/mi_mandelbrot.wasm \
+	bin/mi_mandelbrot.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/mi_mandelbrot.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/mi_mandelbrot.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/mi_mandelbrot.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/mi_mandelbrot.wasm
 	wasmtime bin/mi_mandelbrot.wasm 5000
+
+.PHONY: run_aot
+run_aot: bin/mi_mandelbrot.cwasm
+	wasmtime run --allow-precompiled bin/mi_mandelbrot.cwasm 5000
 
 bin/mi_mandelbrot.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/mi_mandelbrot.out: *.c
 .PHONY: run_native
 run_native: bin/mi_mandelbrot.out
 	./bin/mi_mandelbrot.out 5000
+
+bench.csv: bin/mi_mandelbrot.wasm bin/mi_mandelbrot.cwasm bin/mi_mandelbrot.out
+	hyperfine -N -w 10 \
+	-n mi_mandelbrot_native './bin/mi_mandelbrot.out 5000' \
+	-n mi_mandelbrot_wasmtime_jit 'wasmtime run bin/mi_mandelbrot.wasm 5000' \
+	-n mi_mandelbrot_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_mandelbrot.cwasm 5000' \
+	--export-csv bench.csv

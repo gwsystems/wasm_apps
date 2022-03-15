@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/custom_function_pointers.out \
-	bin/custom_function_pointers.wasm
+	bin/custom_function_pointers.wasm \
+	bin/custom_function_pointers.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/custom_function_pointers.wasm: *.c
 	@mkdir -p bin
@@ -39,14 +41,28 @@ bin/custom_function_pointers.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
 bin/custom_function_pointers.out: *.c
 	@mkdir -p bin
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
-.PHONY: run
-run: bin/custom_function_pointers.wasm
+.PHONY: run_jit
+run_jit: bin/custom_function_pointers.wasm
 	wasmtime bin/custom_function_pointers.wasm
+
+.PHONY: run_aot
+run_aot: bin/custom_function_pointers.cwasm
+	wasmtime run --allow-precompiled bin/custom_function_pointers.cwasm
 
 .PHONY: run_native
 run_native: bin/custom_function_pointers.out
 	./bin/custom_function_pointers.out
+
+bench.csv: bin/custom_function_pointers.wasm bin/custom_function_pointers.cwasm bin/custom_function_pointers.out
+	hyperfine -N -w 10 \
+	-n custom_function_pointers_native './bin/custom_function_pointers.out' \
+	-n custom_function_pointers_wasmtime_jit 'wasmtime run bin/custom_function_pointers.wasm' \
+	-n custom_function_pointers_wasmtime_aot 'wasmtime run --allow-precompiled bin/custom_function_pointers.cwasm' \
+	--export-csv bench.csv

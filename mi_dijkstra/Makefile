@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/mi_dijkstra.out \
-	bin/mi_dijkstra.wasm
+	bin/mi_dijkstra.wasm \
+	bin/mi_dijkstra.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/mi_dijkstra.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/mi_dijkstra.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/mi_dijkstra.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/mi_dijkstra.wasm
 	wasmtime --dir=. bin/mi_dijkstra.wasm input.dat
+
+.PHONY: run_aot
+run_aot: bin/mi_dijkstra.cwasm
+	wasmtime run --dir=. --allow-precompiled bin/mi_dijkstra.cwasm input.dat
 
 bin/mi_dijkstra.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/mi_dijkstra.out: *.c
 .PHONY: run_native
 run_native: bin/mi_dijkstra.out
 	./bin/mi_dijkstra.out input.dat
+
+bench.csv: bin/mi_dijkstra.wasm bin/mi_dijkstra.cwasm bin/mi_dijkstra.out
+	hyperfine -N -w 10 \
+	-n mi_dijkstra './bin/mi_dijkstra.out input.dat' \
+	-n mi_dijkstra_wasmtime_jit 'wasmtime --dir=. bin/mi_dijkstra.wasm input.dat' \
+	-n mi_dijkstra_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_dijkstra.cwasm input.dat' \
+	--export-csv bench.csv

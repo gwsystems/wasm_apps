@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/mi_basic_math.out \
-	bin/mi_basic_math.wasm
+	bin/mi_basic_math.wasm \
+	bin/mi_basic_math.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/mi_basic_math.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/mi_basic_math.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/mi_basic_math.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/mi_basic_math.wasm
 	wasmtime bin/mi_basic_math.wasm
+
+.PHONY: run_aot
+run_aot: bin/mi_basic_math.cwasm
+	wasmtime run --allow-precompiled bin/mi_basic_math.cwasm
 
 bin/mi_basic_math.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/mi_basic_math.out: *.c
 .PHONY: run_native
 run_native: bin/mi_basic_math.out
 	./bin/mi_basic_math.out
+
+bench.csv: bin/mi_basic_math.wasm bin/mi_basic_math.cwasm bin/mi_basic_math.out
+	hyperfine -N -w 10 \
+	-n mi_basic_math_native './bin/mi_basic_math.out' \
+	-n mi_basic_math_wasmtime_jit 'wasmtime run bin/mi_basic_math.wasm' \
+	-n mi_basic_math_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_basic_math.cwasm' \
+	--export-csv bench.csv

@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/pb_la_blas_gesummv.out \
-	bin/pb_la_blas_gesummv.wasm
+	bin/pb_la_blas_gesummv.wasm \
+	bin/pb_la_blas_gesummv.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/pb_la_blas_gesummv.wasm: *.c
 	@mkdir -p bin
@@ -39,14 +41,28 @@ bin/pb_la_blas_gesummv.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/pb_la_blas_gesummv.wasm
-	wasmtime bin/pb_la_blas_gesummv.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
 
 bin/pb_la_blas_gesummv.out: *.c
 	@mkdir -p bin
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
+.PHONY: run_jit
+run_jit: bin/pb_la_blas_gesummv.wasm
+	wasmtime $<
+
+.PHONY: run_aot
+run_aot: bin/pb_la_blas_gesummv.cwasm
+	wasmtime run --allow-precompiled $<
+
 .PHONY: run_native
 run_native: bin/pb_la_blas_gesummv.out
 	./bin/pb_la_blas_gesummv.out
+	
+bench.csv: bin/pb_la_blas_gesummv.wasm bin/pb_la_blas_gesummv.cwasm bin/pb_la_blas_gesummv.out
+	hyperfine -N -w 10 \
+	-n pb_la_blas_gesummv_native './bin/pb_la_blas_gesummv.out' \
+	-n pb_la_blas_gesummv_wasmtime_jit 'wasmtime run bin/pb_la_blas_gesummv.wasm' \
+	-n pb_la_blas_gesummv_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_blas_gesummv.cwasm' \
+	--export-csv bench.csv

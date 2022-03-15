@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/mi_sha.out \
-	bin/mi_sha.wasm
+	bin/mi_sha.wasm \
+	bin/mi_sha.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/mi_sha.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/mi_sha.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/mi_sha.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/mi_sha.wasm
 	wasmtime --dir=. bin/mi_sha.wasm input_large.asc
+
+.PHONY: run_aot
+run_aot: bin/mi_sha.cwasm
+	wasmtime run --dir=. --allow-precompiled bin/mi_sha.cwasm input_large.asc
 
 bin/mi_sha.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/mi_sha.out: *.c
 .PHONY: run_native
 run_native: bin/mi_sha.out
 	./bin/mi_sha.out input_large.asc
+
+bench.csv: bin/mi_sha.wasm bin/mi_sha.cwasm bin/mi_sha.out
+	hyperfine -N -w 10 \
+	-n mi_sha_native './bin/mi_sha.out' \
+	-n mi_sha_wasmtime_jit 'wasmtime run --dir=. bin/mi_sha.wasm input_large.asc' \
+	-n mi_sha_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_sha.cwasm input_large.asc' \
+	--export-csv bench.csv

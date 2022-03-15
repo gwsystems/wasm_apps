@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/mi_bitcount.out \
-	bin/mi_bitcount.wasm
+	bin/mi_bitcount.wasm \
+	bin/mi_bitcount.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/mi_bitcount.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/mi_bitcount.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/mi_bitcount.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/mi_bitcount.wasm
 	wasmtime bin/mi_bitcount.wasm 16777216
+
+.PHONY: run_aot
+run_aot: bin/mi_bitcount.cwasm
+	wasmtime run --allow-precompiled bin/mi_bitcount.cwasm 16777216
 
 bin/mi_bitcount.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/mi_bitcount.out: *.c
 .PHONY: run_native
 run_native: bin/mi_bitcount.out
 	./bin/mi_bitcount.out 16777216
+
+bench.csv: bin/mi_bitcount.wasm bin/mi_bitcount.cwasm bin/mi_bitcount.out
+	hyperfine -N -w 10 \
+	-n mi_bitcount_native './bin/mi_bitcount.out 16777216' \
+	-n mi_bitcount_wasmtime_jit 'wasmtime run bin/mi_bitcount.wasm 16777216' \
+	-n mi_bitcount_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_bitcount.cwasm 16777216' \
+	--export-csv bench.csv

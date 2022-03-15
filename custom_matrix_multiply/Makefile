@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/custom_libjpeg.out \
-	bin/custom_libjpeg.wasm
+	bin/custom_libjpeg.wasm \
+	bin/custom_libjpeg.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/custom_matrix_multiply.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/custom_matrix_multiply.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/custom_matrix_multiply.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/custom_matrix_multiply.wasm
 	wasmtime bin/custom_matrix_multiply.wasm
+
+.PHONY: run_aot
+run_aot: bin/custom_matrix_multiply.cwasm
+	wasmtime run --allow-precompiled bin/custom_matrix_multiply.cwasm
 
 bin/custom_matrix_multiply.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/custom_matrix_multiply.out: *.c
 .PHONY: run_native
 run_native: bin/custom_matrix_multiply.out
 	./bin/custom_matrix_multiply.out
+
+bench.csv: bin/custom_matrix_multiply.wasm bin/custom_matrix_multiply.cwasm bin/custom_matrix_multiply.out
+	hyperfine -N -w 10 \
+	-n custom_matrix_multiply_native './bin/custom_matrix_multiply.out' \
+	-n custom_matrix_multiply_wasmtime_jit 'wasmtime run bin/custom_matrix_multiply.wasm' \
+	-n custom_matrix_multiply_wasmtime_aot 'wasmtime run --allow-precompiled bin/custom_matrix_multiply.cwasm' \
+	--export-csv bench.csv

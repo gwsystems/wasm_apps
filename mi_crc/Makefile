@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/mi_crc.out \
-	bin/mi_crc.wasm
+	bin/mi_crc.wasm \
+	bin/mi_crc.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/mi_crc.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/mi_crc.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/mi_crc.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/mi_crc.wasm
 	wasmtime --dir=. bin/mi_crc.wasm large.pcm
+
+.PHONY: run_aot
+run_aot: bin/mi_crc.cwasm
+	wasmtime run --dir=. --allow-precompiled bin/mi_crc.cwasm large.pcm
 
 bin/mi_crc.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/mi_crc.out: *.c
 .PHONY: run_native
 run_native: bin/mi_crc.out
 	./bin/mi_crc.out large.pcm
+
+bench.csv: bin/mi_crc.wasm bin/mi_crc.cwasm bin/mi_crc.out
+	hyperfine -N -w 10 \
+	-n mi_crc_native './bin/mi_crc.out large.pcm' \
+	-n mi_crc_wasmtime_jit 'wasmtime run --dir=. bin/mi_crc.wasm large.pcm' \
+	-n mi_crc_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_crc.cwasm large.pcm' \
+	--export-csv bench.csv

@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/custom_libjpeg.out \
-	bin/custom_libjpeg.wasm
+	bin/custom_libjpeg.wasm \ 
+	bin/custom_libjpeg.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/custom_libjpeg.wasm: *.c
 	@mkdir -p bin
@@ -39,13 +41,20 @@ bin/custom_libjpeg.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
 bin/custom_libjpeg.out: *.c
 	@mkdir -p bin
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
-.PHONY: run
-run: bin/custom_libjpeg.wasm
+.PHONY: run_jit
+run_jit: bin/custom_libjpeg.wasm
 	wasmtime bin/custom_libjpeg.wasm
+
+.PHONY: run_aot
+run_aot: bin/custom_libjpeg.cwasm
+	wasmtime run --allow-precompiled bin/custom_libjpeg.cwasm
 
 .PHONY: run_native
 run_native: bin/custom_libjpeg.out
@@ -57,3 +66,10 @@ run_native: bin/custom_libjpeg.out
 #                         ^
 #/opt/wasi-sdk//share/wasi-sysroot//include/stdio.h:151:36: note: 'tmpfile' has been explicitly marked deprecated here
 #FILE *tmpfile(void) __attribute__((__deprecated__("tmpfile is not defined on WASI")));
+
+bench.csv: bin/custom_libjpeg.wasm bin/custom_libjpeg.cwasm bin/custom_libjpeg.out
+	hyperfine -N -w 10 \
+	-n custom_libjpeg_native './bin/custom_libjpeg.out' \
+	-n custom_libjpeg_wasmtime_jit 'wasmtime run bin/custom_libjpeg.wasm' \
+	-n custom_libjpeg_wasmtime_aot 'wasmtime run --allow-precompiled bin/custom_libjpeg.cwasm' \
+	--export-csv bench.csv

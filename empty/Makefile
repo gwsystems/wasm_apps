@@ -25,8 +25,9 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 
 .PHONY: all
 all: \
-	bin/empty.out \
-	bin/empty.wasm
+	empty.out \
+	empty.wasm \
+	empty.cwasm
 
 empty.out: main.c
 	@${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
@@ -37,16 +38,31 @@ empty.wasm: main.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
 .PHONY: clean
 clean:
 	@rm -f empty.out
 	@rm -f empty.wasm 
+	@rm -f bench.csv
 
 # Should return 0 exit status
-.PHONY: run
-run: empty.wasm
+.PHONY: run_jit
+run_jit: empty.wasm
 	@wasmtime empty.wasm
+
+.PHONY: run_aot
+run_aot: empty.cwasm
+	wasmtime run --allow-precompiled empty.cwasm
 
 .PHONY: run_native
 run_native: empty.out
 	@./empty.out
+
+bench.csv: empty.wasm empty.cwasm empty.out
+	hyperfine -N -w 10 \
+	-n empty_native './empty.out' \
+	-n empty_wasmtime_jit 'wasmtime run empty.wasm' \
+	-n empty_wasmtime_aot 'wasmtime run --allow-precompiled empty.cwasm' \
+	--export-csv bench.csv

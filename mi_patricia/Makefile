@@ -26,22 +26,31 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/mi_patricia.out \
-	bin/mi_patricia.wasm
+	bin/mi_patricia.wasm \
+	bin/mi_patricia.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/mi_patricia.wasm: *.c
 	@mkdir -p bin
 	${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
 
-.PHONY: run
-run: bin/mi_patricia.wasm
+.PHONY: run_jit
+run_jit: bin/mi_patricia.wasm
 	wasmtime --dir=. bin/mi_patricia.wasm large.udp
+
+.PHONY: run_aot
+run_aot: bin/mi_patricia.cwasm
+	wasmtime run --allow-precompiled bin/mi_patricia.cwasm large.udp
 
 %.wat: %.wasm
 	wasm2wat $< -o $@
+
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
 
 bin/mi_patricia.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/mi_patricia.out: *.c
 .PHONY: run_native
 run_native: bin/mi_patricia.out
 	./bin/mi_patricia.out large.udp
+
+bench.csv: bin/mi_patricia.wasm bin/mi_patricia.cwasm bin/mi_patricia.out
+	hyperfine -N -w 10 \
+	-n mi_patricia_native './bin/mi_patricia.out' \
+	-n mi_patricia_wasmtime_jit 'wasmtime run bin/mi_patricia.wasm large.udp' \
+	-n mi_patricia_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_patricia.cwasm large.udp' \
+	--export-csv bench.csv

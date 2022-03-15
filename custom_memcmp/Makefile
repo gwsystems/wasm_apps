@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/custom_memcmp.out \
-	bin/custom_memcmp.wasm
+	bin/custom_memcmp.wasm \
+	bin/custom_memcmp.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/custom_memcmp.wasm: *.c
 	@mkdir -p bin
@@ -39,13 +41,28 @@ bin/custom_memcmp.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/custom_memcmp.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/custom_memcmp.wasm
 	wasmtime bin/custom_memcmp.wasm
+
+.PHONY: run_aot
+run_aot: bin/custom_memcmp.cwasm
+	wasmtime run --allow-precompiled bin/custom_memcmp.cwasm
 
 bin/custom_memcmp.out: *.c
 	@mkdir -p bin
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
+.PHONY: run_native
 run_native: bin/custom_memcmp.out
 	./bin/custom_memcmp.out
+
+bench.csv: bin/custom_memcmp.wasm bin/custom_memcmp.cwasm bin/custom_memcmp.out
+	hyperfine -N -w 10 \
+	-n custom_memcmp_native './bin/custom_memcmp.out' \
+	-n custom_memcmp_wasmtime_jit 'wasmtime run bin/custom_memcmp.wasm' \
+	-n custom_memcmp_wasmtime_aot 'wasmtime run --allow-precompiled bin/custom_memcmp.cwasm' \
+	--export-csv bench.csv

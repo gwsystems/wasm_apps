@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/pb_la_solvers_cholesky.out \
-	bin/pb_la_solvers_cholesky.wasm
+	bin/pb_la_solvers_cholesky.wasm \
+	bin/pb_la_solvers_cholesky.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/pb_la_solvers_cholesky.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/pb_la_solvers_cholesky.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/pb_la_solvers_cholesky.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/pb_la_solvers_cholesky.wasm
 	wasmtime bin/pb_la_solvers_cholesky.wasm
+
+.PHONY: run_aot
+run_aot: bin/pb_la_solvers_cholesky.cwasm
+	wasmtime run --allow-precompiled bin/pb_la_solvers_cholesky.cwasm
 
 bin/pb_la_solvers_cholesky.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/pb_la_solvers_cholesky.out: *.c
 .PHONY: run_native
 run_native: bin/pb_la_solvers_cholesky.out
 	./bin/pb_la_solvers_cholesky.out
+
+bench.csv: bin/pb_la_solvers_cholesky.wasm bin/pb_la_solvers_cholesky.cwasm bin/pb_la_solvers_cholesky.out
+	hyperfine -N -w 10 \
+	-n pb_la_solvers_cholesky_native './bin/pb_la_solvers_cholesky.out' \
+	-n pb_la_solvers_cholesky_wasmtime_jit 'wasmtime run bin/pb_la_solvers_cholesky.wasm' \
+	-n pb_la_solvers_cholesky_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_cholesky.cwasm' \
+	--export-csv bench.csv

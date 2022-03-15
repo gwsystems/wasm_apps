@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/pb_datamining_correlation.out \
-	bin/pb_datamining_correlation.wasm
+	bin/pb_datamining_correlation.wasm \
+	bin/pb_datamining_correlation.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/pb_datamining_correlation.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/pb_datamining_correlation.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/pb_datamining_correlation.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/pb_datamining_correlation.wasm
 	wasmtime bin/pb_datamining_correlation.wasm
+
+.PHONY: run_aot
+run_aot: bin/pb_datamining_correlation.cwasm
+	wasmtime run --allow-precompiled bin/pb_datamining_correlation.cwasm
 
 bin/pb_datamining_correlation.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/pb_datamining_correlation.out: *.c
 .PHONY: run_native
 run_native: bin/pb_datamining_correlation.out
 	./bin/pb_datamining_correlation.out
+
+bench.csv: bin/pb_datamining_correlation.wasm bin/pb_datamining_correlation.cwasm bin/pb_datamining_correlation.out
+	hyperfine -N -w 10 \
+	-n pb_datamining_correlation_native './bin/pb_datamining_correlation.out' \
+	-n pb_datamining_correlation_wasmtime_jit 'wasmtime run bin/pb_datamining_correlation.wasm' \
+	-n pb_datamining_correlation_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_datamining_correlation.cwasm' \
+	--export-csv bench.csv

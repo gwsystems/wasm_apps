@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/pb_la_blas_syr2k.out \
-	bin/pb_la_blas_syr2k.wasm
+	bin/pb_la_blas_syr2k.wasm \
+	bin/pb_la_blas_syr2k.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/pb_la_blas_syr2k.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/pb_la_blas_syr2k.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/pb_la_blas_syr2k.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/pb_la_blas_syr2k.wasm
 	wasmtime bin/pb_la_blas_syr2k.wasm
+
+.PHONY: run_aot
+run_aot: bin/pb_la_blas_syr2k.cwasm
+	wasmtime run --allow-precompiled bin/pb_la_blas_syr2k.cwasm
 
 bin/pb_la_blas_syr2k.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/pb_la_blas_syr2k.out: *.c
 .PHONY: run_native
 run_native: bin/pb_la_blas_syr2k.out
 	./bin/pb_la_blas_syr2k.out
+
+bench.csv: bin/pb_la_blas_syr2k.wasm bin/pb_la_blas_syr2k.cwasm bin/pb_la_blas_syr2k.out
+	hyperfine -N -w 10 \
+	-n pb_la_blas_syr2k_native './bin/pb_la_blas_syr2k.out' \
+	-n pb_la_blas_syr2k_wasmtime_jit 'wasmtime run bin/pb_la_blas_syr2k.wasm' \
+	-n pb_la_blas_syr2k_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_blas_syr2k.cwasm' \
+	--export-csv bench.csv

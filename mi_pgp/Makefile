@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/mi_pgp.out \
-	bin/mi_pgp.wasm
+	bin/mi_pgp.wasm \
+	bin/mi_pgp.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/mi_pgp.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/mi_pgp.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/mi_pgp.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/mi_pgp.wasm
 	wasmtime bin/mi_pgp.wasm '-sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu'
+
+.PHONY: run_aot
+run_aot: bin/mi_pgp.cwasm
+	wasmtime run --allow-precompiled bin/mi_pgp.cwasm
 
 bin/mi_pgp.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/mi_pgp.out: *.c
 .PHONY: run_native
 run_native: bin/mi_pgp.out
 	./bin/mi_pgp.out -sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu
+
+bench.csv: bin/mi_pgp.wasm bin/mi_pgp.cwasm bin/mi_pgp.out
+	hyperfine -N -w 10 \
+	-n mi_pgp_native './bin/mi_pgp.out' \
+	-n mi_pgp_wasmtime_jit 'wasmtime run bin/mi_pgp.wasm' \
+	-n mi_pgp_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_pgp.cwasm' \
+	--export-csv bench.csv

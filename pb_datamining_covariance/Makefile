@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/pb_datamining_covariance.out \
-	bin/pb_datamining_covariance.wasm
+	bin/pb_datamining_covariance.wasm \
+	bin/pb_datamining_covariance.cwasm 
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/pb_datamining_covariance.wasm: *.c
 	@mkdir -p bin
@@ -39,14 +41,28 @@ bin/pb_datamining_covariance.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/pb_datamining_covariance.wasm
-	wasmtime bin/pb_datamining_covariance.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
 
 bin/pb_datamining_covariance.out: *.c
 	@mkdir -p bin
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
+.PHONY: run_jit
+run_jit: bin/pb_datamining_covariance.wasm
+	wasmtime $<
+
+.PHONY: run_aot
+run_aot: bin/pb_datamining_covariance.cwasm
+	wasmtime run --allow-precompiled $<
+
 .PHONY: run_native
 run_native: bin/pb_datamining_covariance.out
 	./bin/pb_datamining_covariance.out
+
+bench.csv: bin/pb_datamining_covariance.wasm bin/pb_datamining_covariance.cwasm bin/pb_datamining_covariance.out
+	hyperfine -N -w 10 \
+	-n pb_datamining_covariance_native './bin/pb_datamining_covariance.out' \
+	-n pb_datamining_covariance_wasmtime_jit 'wasmtime run bin/pb_datamining_covariance.wasm' \
+	-n pb_datamining_covariance_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_datamining_covariance.cwasm' \
+	--export-csv bench.csv

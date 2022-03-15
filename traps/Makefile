@@ -25,14 +25,18 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 
 .PHONY: all
 all: \
-	bin/trap_divzero.out \
-	bin/trap_divzero.wasm
+	trap_divzero.out \
+	trap_divzero.wasm \
+	trap_divzero.cwasm
 
 trap_divzero.wasm: trap_divzero.c
 	@${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
 
 %.wat: %.wasm
 	wasm2wat $< -o $@
+
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
 
 trap_divzero.out: trap_divzero.c
 	@${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
@@ -41,11 +45,23 @@ trap_divzero.out: trap_divzero.c
 clean:
 	@rm -f trap_divzero.out
 	@rm -f trap_divzero.wasm
+	@rm -f bench.csv
 	
-.PHONY: run
-run: trap_divzero.wasm
-	@wasmtime trap_divzero.wasm
+.PHONY: run_jit
+run_jit: trap_divzero.wasm
+	@echo "0" | wasmtime trap_divzero.wasm
+
+.PHONY: run_aot
+run_aot: trap_divzero.cwasm
+	@echo "0" | wasmtime run --allow-precompiled trap_divzero.cwasm
 
 .PHONY: run_native
 run_native: trap_divzero.out
-	@./echo.out
+	@echo "0" | ./trap_divzero.out
+
+bench.csv: trap_divzero.wasm trap_divzero.cwasm trap_divzero.out
+	hyperfine -N -w 10 \
+	-n trap_divzero_native 'echo "0" | ./trap_divzero.out' \
+	-n trap_divzero_wasmtime_jit 'echo "0" | wasmtime run trap_divzero.wasm' \
+	-n trap_divzero_wasmtime_aot 'echo "0" | wasmtime run --allow-precompiled trap_divzero.cwasm' \
+	--export-csv bench.csv

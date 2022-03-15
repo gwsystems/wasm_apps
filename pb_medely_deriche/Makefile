@@ -26,11 +26,13 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 .PHONY: all
 all: \
 	bin/pb_medely_deriche.out \
-	bin/pb_medely_deriche.wasm
+	bin/pb_medely_deriche.wasm \
+	bin/pb_medely_deriche.cwasm
 
 .PHONY: clean
 clean:
 	@rm -rf bin
+	@rm -f bench.csv
 
 bin/pb_medely_deriche.wasm: *.c
 	@mkdir -p bin
@@ -39,9 +41,16 @@ bin/pb_medely_deriche.wasm: *.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
-.PHONY: run
-run: bin/pb_medely_deriche.wasm
+%.cwasm: %.wasm
+	wasmtime compile $< -o $@
+
+.PHONY: run_jit
+run_jit: bin/pb_medely_deriche.wasm
 	wasmtime bin/pb_medely_deriche.wasm
+
+.PHONY: run_aot
+run_aot: bin/pb_medely_deriche.cwasm
+	wasmtime run --allow-precompiled bin/pb_medely_deriche.cwasm
 
 bin/pb_medely_deriche.out: *.c
 	@mkdir -p bin
@@ -50,3 +59,10 @@ bin/pb_medely_deriche.out: *.c
 .PHONY: run_native
 run_native: bin/pb_medely_deriche.out
 	./bin/pb_medely_deriche.out
+
+bench.csv: bin/pb_medely_deriche.wasm bin/pb_medely_deriche.cwasm bin/pb_medely_deriche.out
+	hyperfine -N -w 10 \
+	-n pb_medely_deriche_native './bin/pb_medely_deriche.out' \
+	-n pb_medely_deriche_wasmtime_jit 'wasmtime run bin/pb_medely_deriche.wasm' \
+	-n pb_medely_deriche_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_medely_deriche.cwasm' \
+	--export-csv bench.csv
