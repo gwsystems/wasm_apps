@@ -27,7 +27,8 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 all: \
 	fibonacci.out \
 	fibonacci.wasm \
-	fibonacci.cwasm
+	fibonacci.cwasm \
+	fibonacci.aot \
 
 fibonacci.wasm: main.c
 	@${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
@@ -35,15 +36,32 @@ fibonacci.wasm: main.c
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
+# wasmtime AOT
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
 
+# wamr AOT
+%.aot: %.wasm
+	wamrc -o $@ $<
+
+# wasm2c WIP
+# %.wasm.c: %.wasm
+# 	wasm2c $< -o $@
+
+# fibonacci.wasm.out: fibonacci.wasm.c
+# 	${CC} ${CFLAGS} ${LDFLAGS} -Wl,-e,w2c_main -I. $^ -o $@
+
 fibonacci.out: main.c
-	@${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
+	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
+
 .PHONY: clean
 clean:
 	@rm -f fibonacci.wasm
+	@rm -f fibonacci.cwasm
+	@rm -f fibonacci.wasm.out
+	@rm -f fibonacci.wasm.c
 	@rm -f fibonacci.out
+	@rm -f fibonacci.aot
 	@rm -f bench.csv
 
 # Serverless style app that uses stdin and stdout
@@ -60,14 +78,24 @@ run_wasmtime_aot: fibonacci.cwasm
 run_wasm3: fibonacci.wasm
 	@echo "40" | wasm3 fibonacci.wasm
 
+.PHONY: run_wamr_int
+run_wamr_int: fibonacci.wasm
+	@echo "40" | iwasm fibonacci.wasm
+
+.PHONY: run_wamr_aot
+run_wamr_aot: fibonacci.aot
+	@echo "40" | iwasm fibonacci.aot
+
 .PHONY: run_native
 run_native: fibonacci.out
 	@./fibonacci.out
 
-bench.csv: fibonacci.wasm fibonacci.cwasm fibonacci.out
+bench.csv: fibonacci.wasm fibonacci.cwasm fibonacci.out fibonacci.aot
 	hyperfine -w 10 \
-	-n fibonacci_native 'echo "40" | ./fibonacci.out' \
+	-n fibonacci_native       'echo "40" | ./fibonacci.out' \
 	-n fibonacci_wasmtime_jit 'echo "40" | wasmtime run fibonacci.wasm' \
 	-n fibonacci_wasmtime_aot 'echo "40" | wasmtime run --allow-precompiled fibonacci.cwasm' \
-	-n fibonacci_wasm3 'echo "40" | wasm3 fibonacci.wasm' \
+	-n fibonacci_wamr_int     'echo "40" | iwasm fibonacci.wasm' \
+	-n fibonacci_wamr_aot     'echo "40" | iwasm fibonacci.aot' \
+	-n fibonacci_wasm3        'echo "40" | wasm3 fibonacci.wasm' \
 	--export-csv bench.csv
