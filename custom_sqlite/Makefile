@@ -1,33 +1,17 @@
-CC=clang
-CFLAGS=-O3 -I. -Wall -DSQLITE_MUTEX_NOOP
-LDFLAGS=-flto -ldl
+include ../common.mk
 
-WASMCC=${WASI_SDK_PATH}/bin/clang --sysroot=${WASI_SDK_PATH}/share/wasi-sysroot/
-WASMCFLAGS=${CFLAGS} -D_WASI_EMULATED_MMAN
+CFLAGS+= -DSQLITE_MUTEX_NOOP
+LDFLAGS+= -ldl
 
-# See https://lld.llvm.org/WebAssembly.html
-WASMLDFLAGS=${LDFLAGS} -lwasi-emulated-mman -Wl,-z,stack-size=524288,--allow-undefined,--threads=1
-
-# Clang 12 WebAssembly Options
-# See https://clang.llvm.org/docs/ClangCommandLineReference.html#webassembly
-# Disable WebAssembly Proposals aWsm does not support
-WASMCFLAGS+= -mno-atomics # https://github.com/WebAssembly/threads
-WASMCFLAGS+= -mno-bulk-memory # https://github.com/WebAssembly/bulk-memory-operations
-WASMCFLAGS+= -mno-exception-handling # https://github.com/WebAssembly/exception-handling
-WASMCFLAGS+= -mno-multivalue # https://github.com/WebAssembly/multi-value
-# Mutable globals still exist, but disables the ability to import mutable globals
-WASMCFLAGS+= -mno-mutable-globals # https://github.com/WebAssembly/mutable-global
-WASMCFLAGS+= -mno-nontrapping-fptoint # https://github.com/WebAssembly/nontrapping-float-to-int-conversions
-WASMCFLAGS+= -mno-reference-types # https://github.com/WebAssembly/reference-types
-WASMCFLAGS+= -mno-sign-ext # https://github.com/WebAssembly/sign-extension-ops
-WASMCFLAGS+= -mno-tail-call # https://github.com/WebAssembly/tail-call
-WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
+WASMCFLAGS+= -DSQLITE_MUTEX_NOOP -D_WASI_EMULATED_MMAN
+WASMLDFLAGS+= -lwasi-emulated-mman
 
 .PHONY: all
 all: \
 	bin/custom_sqlite.out \
 	bin/custom_sqlite.wasm \
-	bin/custom_sqlite.cwasm
+	bin/custom_sqlite.cwasm \
+	bin/custom_sqlite.aot
 
 .PHONY: clean
 clean:
@@ -38,11 +22,9 @@ bin/custom_sqlite.wasm: *.c
 	@mkdir -p bin
 	${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
 
-%.wat: %.wasm
-	wasm2wat $< -o $@
-
-%.cwasm: %.wasm
-	wasmtime compile $< -o $@
+bin/custom_sqlite.out: *.c
+	@mkdir -p bin
+	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
 .PHONY: run_wasmtime_jit
 run_wasmtime_jit: bin/custom_sqlite.wasm
@@ -56,18 +38,15 @@ run_wasmtime_aot: bin/custom_sqlite.cwasm
 run_wasm3: bin/custom_sqlite.wasm
 	wasm3 bin/custom_sqlite.wasm
 
-bin/custom_sqlite.out: *.c
-	@mkdir -p bin
-	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
-
 .PHONY: run_native
 run_native: bin/custom_sqlite.out
 	./bin/custom_sqlite.out
 
 bench.csv: bin/custom_sqlite.wasm bin/custom_sqlite.cwasm bin/custom_sqlite.out
-	hyperfine -N -w 10 \
-	-n custom_sqlite_native './bin/custom_sqlite.out' \
-	-n custom_sqlite_wasmtime_jit 'wasmtime run bin/custom_sqlite.wasm' \
-	-n custom_sqlite_wasmtime_aot 'wasmtime run --allow-precompiled bin/custom_sqlite.cwasm' \
-	-n custom_sqlite_wasm3 'wasm3 bin/custom_sqlite.wasm' \
-	--export-csv bench.csv
+	hyperfine -N -w 10 --export-csv bench.csv \
+		-n custom_sqlite_native       './bin/custom_sqlite.out' \
+		-n custom_sqlite_wasmtime_jit 'wasmtime run bin/custom_sqlite.wasm' \
+		-n custom_sqlite_wasmtime_aot 'wasmtime run --allow-precompiled bin/custom_sqlite.cwasm' \
+		-n custom_sqlite_wamr_int     'iwasm bin/custom_sqlite.wasm' \
+		-n custom_sqlite_wamr_aot     'iwasm bin/custom_sqlite.aot' \
+		-n custom_sqlite_wasm3        'wasm3 bin/custom_sqlite.wasm'

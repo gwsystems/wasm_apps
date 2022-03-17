@@ -1,51 +1,25 @@
-CC=clang
-CFLAGS=-O3 -I. -Wall
-LDFLAGS=-flto
-
-WASMCC=${WASI_SDK_PATH}/bin/clang --sysroot=${WASI_SDK_PATH}/share/wasi-sysroot/
-WASMCFLAGS=${CFLAGS}
-
-# See https://lld.llvm.org/WebAssembly.html
-WASMLDFLAGS=${LDFLAGS} -Wl,--allow-undefined,-z,stack-size=32768,--threads=1
-
-# Clang 12 WebAssembly Options
-# See https://clang.llvm.org/docs/ClangCommandLineReference.html#webassembly
-# Disable WebAssembly Proposals aWsm does not support
-WASMCFLAGS+= -mno-atomics # https://github.com/WebAssembly/threads
-WASMCFLAGS+= -mno-bulk-memory # https://github.com/WebAssembly/bulk-memory-operations
-WASMCFLAGS+= -mno-exception-handling # https://github.com/WebAssembly/exception-handling
-WASMCFLAGS+= -mno-multivalue # https://github.com/WebAssembly/multi-value
-# Mutable globals still exist, but disables the ability to import mutable globals
-WASMCFLAGS+= -mno-mutable-globals # https://github.com/WebAssembly/mutable-global
-WASMCFLAGS+= -mno-nontrapping-fptoint # https://github.com/WebAssembly/nontrapping-float-to-int-conversions
-WASMCFLAGS+= -mno-reference-types # https://github.com/WebAssembly/reference-types
-WASMCFLAGS+= -mno-sign-ext # https://github.com/WebAssembly/sign-extension-ops
-WASMCFLAGS+= -mno-tail-call # https://github.com/WebAssembly/tail-call
-WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
+include ../common.mk
 
 .PHONY: all
 all: \
 	empty.out \
 	empty.wasm \
-	empty.cwasm
+	empty.cwasm \
+	empty.aot
+
+.PHONY: clean
+clean:
+	@rm -f empty.out
+	@rm -f empty.wasm 
+	@rm -f empty.cwasm 
+	@rm -f empty.aot 
+	@rm -f bench.csv
 
 empty.out: main.c
 	@${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
 empty.wasm: main.c
 	@${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
-
-%.wat: %.wasm
-	wasm2wat $< -o $@
-
-%.cwasm: %.wasm
-	wasmtime compile $< -o $@
-
-.PHONY: clean
-clean:
-	@rm -f empty.out
-	@rm -f empty.wasm 
-	@rm -f bench.csv
 
 # Should return 0 exit status
 .PHONY: run_wasmtime_jit
@@ -60,14 +34,23 @@ run_wasmtime_aot: empty.cwasm
 run_wasm3: empty.wasm
 	wasm3 empty.wasm
 
+.PHONY: run_wamr_int
+run_wamr_int: empty.wasm
+	iwasm empty.wasm
+
+.PHONY: run_wamr_aot
+run_wamr_aot: empty.aot
+	iwasm empty.aot
+
 .PHONY: run_native
 run_native: empty.out
-	@./empty.out
+	./empty.out
 
-bench.csv: empty.wasm empty.cwasm empty.out
-	hyperfine -N -w 10 \
-	-n empty_native './empty.out' \
+bench.csv: empty.wasm empty.cwasm empty.out empty.aot
+	hyperfine -N -w 10 --export-csv bench.csv \
+	-n empty_native       './empty.out' \
 	-n empty_wasmtime_jit 'wasmtime run empty.wasm' \
 	-n empty_wasmtime_aot 'wasmtime run --allow-precompiled empty.cwasm' \
-	-n empty_wasm3 'wasm3 empty.wasm' \
-	--export-csv bench.csv
+	-n empty_wamr_int     'iwasm empty.wasm' \
+	-n empty_wamr_aot     'iwasm empty.aot' \
+	-n empty_wasm3        'wasm3 empty.wasm'

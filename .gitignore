@@ -2,4 +2,5 @@ dist/*
 *.wasm
 *.cwasm
 *.out
+*.aot
 bench.csv

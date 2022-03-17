@@ -1,52 +1,27 @@
-CC=clang
-CFLAGS=-O3 -I. -Wall
-LDFLAGS=-flto
+include ../common.mk
 
-WASMCC=${WASI_SDK_PATH}/bin/clang --sysroot=${WASI_SDK_PATH}/share/wasi-sysroot/
-WASMCFLAGS=${CFLAGS}
-
-# See https://lld.llvm.org/WebAssembly.html
-WASMLDFLAGS=${LDFLAGS} -Wl,-z,stack-size=524288,--allow-undefined,--threads=1
-
-# Clang 12 WebAssembly Options
-# See https://clang.llvm.org/docs/ClangCommandLineReference.html#webassembly
-# Disable WebAssembly Proposals aWsm does not support
-WASMCFLAGS+= -mno-atomics # https://github.com/WebAssembly/threads
-WASMCFLAGS+= -mno-bulk-memory # https://github.com/WebAssembly/bulk-memory-operations
-WASMCFLAGS+= -mno-exception-handling # https://github.com/WebAssembly/exception-handling
-WASMCFLAGS+= -mno-multivalue # https://github.com/WebAssembly/multi-value
-# Mutable globals still exist, but disables the ability to import mutable globals
-WASMCFLAGS+= -mno-mutable-globals # https://github.com/WebAssembly/mutable-global
-WASMCFLAGS+= -mno-nontrapping-fptoint # https://github.com/WebAssembly/nontrapping-float-to-int-conversions
-WASMCFLAGS+= -mno-reference-types # https://github.com/WebAssembly/reference-types
-WASMCFLAGS+= -mno-sign-ext # https://github.com/WebAssembly/sign-extension-ops
-WASMCFLAGS+= -mno-tail-call # https://github.com/WebAssembly/tail-call
-WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
+# Increase stack size
+WASMLDFLAGS=${LDFLAGS} -Wl,-z,stack-size=524288
 
 .PHONY: all
 all: \
 	bin/app_v9.out \
 	bin/app_v9.wasm \
-	bin/app_v9.cwasm
-
-.PHONY: clean
-clean:
-	@rm -rf bin
-	@rm -f bench.csv
+	bin/app_v9.cwasm \
+	bin/app_v9.aot
 
 bin/app_v9.wasm: *.c
 	@mkdir -p bin
 	${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
 
-%.wat: %.wasm
-	wasm2wat $< -o $@
-
-%.cwasm: %.wasm
-	wasmtime compile $< -o $@
-
 bin/app_v9.out: *.c
 	@mkdir -p bin
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
+
+.PHONY: clean
+clean:
+	@rm -rf bin
+	@rm -f bench.csv
 
 .PHONY: run_wasmtime_jit
 run_wasmtime_jit: bin/app_v9.wasm
@@ -60,14 +35,23 @@ run_wasmtime_aot: bin/app_v9.cwasm
 run_wasm3: bin/app_v9.wasm
 	wasm3 bin/app_v9.wasm
 
+.PHONY: run_wamr_int
+run_wamr_int: bin/app_v9.wasm
+	iwasm bin/app_v9.wasm
+
+.PHONY: run_wamr_aot
+run_wamr_aot: bin/app_v9.aot
+	iwasm bin/app_v9.aot
+
 .PHONY: run_native
 run_native: bin/app_v9.out
 	./bin/app_v9.out
 
-bench.csv: bin/app_v9.wasm bin/app_v9.cwasm bin/app_v9.out
-	hyperfine -N -w 10 \
-	-n app_v9_native './bin/app_v9.out' \
-	-n app_v9_wasmtime_jit 'wasmtime run bin/app_v9.wasm' \
-	-n app_v9_wasmtime_aot 'wasmtime run --allow-precompiled bin/app_v9.cwasm' \
-	-n app_v9_wasm3 'wasm3 bin/app_v9.wasm' \
-	--export-csv bench.csv
+bench.csv: bin/app_v9.wasm bin/app_v9.cwasm bin/app_v9.out bin/app_v9.aot
+	hyperfine -N -w 10 --export-csv bench.csv \
+		-n app_v9_native       './bin/app_v9.out' \
+		-n app_v9_wasmtime_jit 'wasmtime run bin/app_v9.wasm' \
+		-n app_v9_wasmtime_aot 'wasmtime run --allow-precompiled bin/app_v9.cwasm' \
+		-n app_v9_wamr_int     'iwasm bin/app_v9.wasm' \
+		-n app_v9_wamr_aot     'iwasm bin/app_v9.aot' \
+		-n app_v9_wasm3        'wasm3 bin/app_v9.wasm' \
