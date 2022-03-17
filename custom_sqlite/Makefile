@@ -38,11 +38,19 @@ run_wasmtime_aot: bin/custom_sqlite.cwasm
 run_wasm3: bin/custom_sqlite.wasm
 	wasm3 bin/custom_sqlite.wasm
 
+.PHONY: run_wamr_int
+run_wamr_int: bin/custom_sqlite.wasm
+	iwasm bin/custom_sqlite.wasm
+
+.PHONY: run_wamr_aot
+run_wamr_aot: bin/custom_sqlite.aot
+	iwasm bin/custom_sqlite.aot
+
 .PHONY: run_native
 run_native: bin/custom_sqlite.out
 	./bin/custom_sqlite.out
 
-bench.csv: bin/custom_sqlite.wasm bin/custom_sqlite.cwasm bin/custom_sqlite.out
+bench.csv: bin/custom_sqlite.wasm bin/custom_sqlite.cwasm bin/custom_sqlite.out bin/custom_sqlite.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
 		-n custom_sqlite_native       './bin/custom_sqlite.out' \
 		-n custom_sqlite_wasmtime_jit 'wasmtime run bin/custom_sqlite.wasm' \
