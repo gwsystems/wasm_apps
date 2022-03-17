@@ -1,5 +1,7 @@
 include ../common.mk
 
+ARGS= input.dat
+
 .PHONY: all
 all: \
 	bin/mi_dijkstra.out \
@@ -22,33 +24,33 @@ bin/mi_dijkstra.out: *.c
 
 .PHONY: run_wasmtime_jit
 run_wasmtime_jit: bin/mi_dijkstra.wasm
-	wasmtime --dir=. bin/mi_dijkstra.wasm input.dat
+	wasmtime --dir=. bin/mi_dijkstra.wasm ${ARGS}
 
 .PHONY: run_wasmtime_aot
 run_wasmtime_aot: bin/mi_dijkstra.cwasm
-	wasmtime run --dir=. --allow-precompiled bin/mi_dijkstra.cwasm input.dat
+	wasmtime run --dir=. --allow-precompiled bin/mi_dijkstra.cwasm ${ARGS}
 
 .PHONY: run_wasm3
 run_wasm3: bin/mi_dijkstra.wasm
-	wasm3 bin/mi_dijkstra.wasm input.dat
+	wasm3 bin/mi_dijkstra.wasm ${ARGS}
 
 .PHONY: run_wamr_int
 run_wamr_int: bin/mi_dijkstra.wasm
-	iwasm --dir=. bin/mi_dijkstra.wasm input.dat
+	iwasm --dir=. bin/mi_dijkstra.wasm ${ARGS}
 
 .PHONY: run_wamr_aot
 run_wamr_aot: bin/mi_dijkstra.aot
-	iwasm --dir=. bin/mi_dijkstra.aot input.dat
+	iwasm --dir=. bin/mi_dijkstra.aot ${ARGS}
 
 .PHONY: run_native
 run_native: bin/mi_dijkstra.out
-	./bin/mi_dijkstra.out input.dat
+	./bin/mi_dijkstra.out ${ARGS}
 
 bench.csv: bin/mi_dijkstra.wasm bin/mi_dijkstra.cwasm bin/mi_dijkstra.out bin/mi_dijkstra.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n mi_dijkstra_native       './bin/mi_dijkstra.out input.dat' \
-	-n mi_dijkstra_wasmtime_jit 'wasmtime --dir=. bin/mi_dijkstra.wasm input.dat' \
-	-n mi_dijkstra_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_dijkstra.cwasm input.dat' \
-	-n mi_dijkstra_wamr_int     'iwasm --dir=. bin/mi_dijkstra.wasm input.dat' \
-	-n mi_dijkstra_wamr_aot     'iwasm --dir=. bin/mi_dijkstra.aot input.dat' \
-	-n mi_dijkstra_wasm3        'wasm3 bin/mi_dijkstra.wasm input.dat'
+		-n mi_dijkstra_native       './bin/mi_dijkstra.out ${ARGS}' \
+		-n mi_dijkstra_wasmtime_jit 'wasmtime --dir=. bin/mi_dijkstra.wasm ${ARGS}' \
+		-n mi_dijkstra_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_dijkstra.cwasm ${ARGS}' \
+		-n mi_dijkstra_wamr_int     'iwasm --dir=. bin/mi_dijkstra.wasm ${ARGS}' \
+		-n mi_dijkstra_wamr_aot     'iwasm --dir=. bin/mi_dijkstra.aot ${ARGS}' \
+		-n mi_dijkstra_wasm3        'wasm3 bin/mi_dijkstra.wasm ${ARGS}'

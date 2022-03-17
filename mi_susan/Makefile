@@ -1,33 +1,15 @@
-CC=clang
-CFLAGS=-O3 -I. -Wall -Wno-everything
-LDFLAGS=-flto -lm
+include ../common.mk
 
-WASMCC=${WASI_SDK_PATH}/bin/clang --sysroot=${WASI_SDK_PATH}/share/wasi-sysroot/
-WASMCFLAGS=${CFLAGS}
-
-# See https://lld.llvm.org/WebAssembly.html
-WASMLDFLAGS=${LDFLAGS} -Wl,-z,stack-size=524288,--allow-undefined,--threads=1
-
-# Clang 12 WebAssembly Options
-# See https://clang.llvm.org/docs/ClangCommandLineReference.html#webassembly
-# Disable WebAssembly Proposals aWsm does not support
-WASMCFLAGS+= -mno-atomics # https://github.com/WebAssembly/threads
-WASMCFLAGS+= -mno-bulk-memory # https://github.com/WebAssembly/bulk-memory-operations
-WASMCFLAGS+= -mno-exception-handling # https://github.com/WebAssembly/exception-handling
-WASMCFLAGS+= -mno-multivalue # https://github.com/WebAssembly/multi-value
-# Mutable globals still exist, but disables the ability to import mutable globals
-WASMCFLAGS+= -mno-mutable-globals # https://github.com/WebAssembly/mutable-global
-WASMCFLAGS+= -mno-nontrapping-fptoint # https://github.com/WebAssembly/nontrapping-float-to-int-conversions
-WASMCFLAGS+= -mno-reference-types # https://github.com/WebAssembly/reference-types
-WASMCFLAGS+= -mno-sign-ext # https://github.com/WebAssembly/sign-extension-ops
-WASMCFLAGS+= -mno-tail-call # https://github.com/WebAssembly/tail-call
-WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
+LDFLAGS+= -lm
+ARGS= input_large.pgm output.pgm -s
+WASMLDFLAGS+=-Wl,-z,stack-size=4096000 -Wl,--export=malloc -Wl,--export=free
 
 .PHONY: all
 all: \
 	bin/mi_susan.out \
 	bin/mi_susan.wasm \
-	bin/mi_susan.cwasm
+	bin/mi_susan.cwasm \
+	bin/mi_susan.aot
 
 .PHONY: clean
 clean:
@@ -38,36 +20,41 @@ bin/mi_susan.wasm: *.c
 	@mkdir -p bin
 	${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
 
-%.wat: %.wasm
-	wasm2wat $< -o $@
-
-%.cwasm: %.wasm
-	wasmtime compile $< -o $@
-
-.PHONY: run_wasmtime_jit
-run_wasmtime_jit: bin/mi_susan.wasm
-	wasmtime --dir=. bin/mi_susan.wasm input_large.pgm output.pgm -s
-
-.PHONY: run_wasmtime_aot
-run_wasmtime_aot: bin/mi_susan.cwasm
-	wasmtime run --dir=. --allow-precompiled bin/mi_susan.cwasm input_large.pgm output.pgm -s
-
-.PHONY: run_wasm3
-run_wasm3: bin/mi_susan.wasm
-	wasm3 bin/mi_susan.wasm
-
 bin/mi_susan.out: *.c
 	@mkdir -p bin
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_susan.wasm
+	wasmtime --dir=. bin/mi_susan.wasm ${ARGS}
+
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_susan.cwasm
+	wasmtime run --dir=. --allow-precompiled bin/mi_susan.cwasm ${ARGS}
+
+# Error: [trap] out of bounds memory access
+.PHONY: run_wasm3
+run_wasm3: bin/mi_susan.wasm
+	wasm3 bin/mi_susan.wasm ${ARGS}
+
+.PHONY: run_wamr_int
+run_wamr_int: bin/mi_susan.wasm
+	iwasm --dir=. bin/mi_susan.wasm ${ARGS}
+
+.PHONY: run_wamr_aot
+run_wamr_aot: bin/mi_susan.aot
+	iwasm --dir=. bin/mi_susan.aot ${ARGS}
+
 .PHONY: run_native
 run_native: bin/mi_susan.out
-	./bin/mi_susan.out input_large.pgm output.pgm -s
+	./bin/mi_susan.out ${ARGS}
 
 bench.csv: bin/mi_susan.wasm bin/mi_susan.cwasm bin/mi_susan.out
-	hyperfine -N -w 10 \
-	-n mi_susan_native './bin/mi_susan.out' \
-	-n mi_susan_wasmtime_jit 'wasmtime run bin/mi_susan.wasm' \
-	-n mi_susan_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_susan.cwasm' \
-	-n mi_susan_wasm3 'wasm3 bin/mi_susan.wasm' \
-	--export-csv bench.csv
+	hyperfine -N -w 10 --export-csv bench.csv -c 'rm output.pgm' \
+		-n mi_susan_native          './bin/mi_susan.out ${ARGS}' \
+		-n mi_susan_wasmtime_jit    'wasmtime run --dir=. bin/mi_susan.wasm ${ARGS}' \
+		-n mi_susan_wasmtime_aot    'wasmtime run --dir=. --allow-precompiled bin/mi_susan.cwasm ${ARGS}' \
+		-n mi_susan_wamr_int 'iwasm --dir=. bin/mi_susan.wasm ${ARGS}' \
+		-n mi_susan_wamr_aot 'iwasm --dir=. bin/mi_susan.aot ${ARGS}'
+
+# -n mi_susan_wasm3           'wasm3 bin/mi_susan.wasm ${ARGS}' \

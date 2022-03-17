@@ -1,33 +1,18 @@
-CC=clang
-CFLAGS=-O3 -I. -Wall -Wno-everything -DUNIX -D_BSD -DPORTABLE -DUSE_NBIO -DMPORTABLE 
-LDFLAGS=-flto
+include ../common.mk
 
-WASMCC=${WASI_SDK_PATH}/bin/clang --sysroot=${WASI_SDK_PATH}/share/wasi-sysroot/
-WASMCFLAGS=${CFLAGS} -D_WASI_EMULATED_SIGNAL
+CFLAGS+= -DUNIX -D_BSD -DPORTABLE -DUSE_NBIO -DMPORTABLE 
+WASMCFLAGS+= -DUNIX -D_BSD -DPORTABLE -DUSE_NBIO -DMPORTABLE -D_WASI_EMULATED_SIGNAL
+WASMLDFLAGS+= -lwasi-emulated-signal
+WASMLDFLAGS+=-Wl,-z,stack-size=128000 -Wl,--export=malloc -Wl,--export=free
 
-# See https://lld.llvm.org/WebAssembly.html
-WASMLDFLAGS=${LDFLAGS} -Wl,-z,stack-size=524288,--allow-undefined,--threads=1 -lwasi-emulated-signal
-
-# Clang 12 WebAssembly Options
-# See https://clang.llvm.org/docs/ClangCommandLineReference.html#webassembly
-# Disable WebAssembly Proposals aWsm does not support
-WASMCFLAGS+= -mno-atomics # https://github.com/WebAssembly/threads
-WASMCFLAGS+= -mno-bulk-memory # https://github.com/WebAssembly/bulk-memory-operations
-WASMCFLAGS+= -mno-exception-handling # https://github.com/WebAssembly/exception-handling
-WASMCFLAGS+= -mno-multivalue # https://github.com/WebAssembly/multi-value
-# Mutable globals still exist, but disables the ability to import mutable globals
-WASMCFLAGS+= -mno-mutable-globals # https://github.com/WebAssembly/mutable-global
-WASMCFLAGS+= -mno-nontrapping-fptoint # https://github.com/WebAssembly/nontrapping-float-to-int-conversions
-WASMCFLAGS+= -mno-reference-types # https://github.com/WebAssembly/reference-types
-WASMCFLAGS+= -mno-sign-ext # https://github.com/WebAssembly/sign-extension-ops
-WASMCFLAGS+= -mno-tail-call # https://github.com/WebAssembly/tail-call
-WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
+ARGS= input_small.dat
 
 .PHONY: all
 all: \
 	bin/mi_qsort.out \ 
 	bin/mi_qsort.wasm \
-	bin/mi_qsort.cwasm
+	bin/mi_qsort.cwasm \
+	bin/mi_qsort.aot
 
 .PHONY: clean
 clean:
@@ -38,36 +23,39 @@ bin/mi_qsort.wasm: *.c
 	@mkdir -p bin
 	${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
 
-%.wat: %.wasm
-	wasm2wat $< -o $@
-
-%.cwasm: %.wasm
-	wasmtime compile $< -o $@
-
-.PHONY: run_wasmtime_jit
-run_wasmtime_jit: bin/mi_qsort.wasm
-	wasmtime --dir=. bin/mi_qsort.wasm input_small.dat
-
-.PHONY: run_wasmtime_aot
-run_wasmtime_aot: bin/mi_qsort.cwasm
-	wasmtime run --dir=. --allow-precompiled bin/mi_qsort.cwasm input_small.dat
-
-.PHONY: run_wasm3
-run_wasm3: bin/mi_qsort.wasm
-	wasm3 bin/mi_qsort.wasm input_small.dat
-
 bin/mi_qsort.out: *.c
 	@mkdir -p bin
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_qsort.wasm
+	wasmtime --dir=. bin/mi_qsort.wasm ${ARGS}
+
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_qsort.cwasm
+	wasmtime run --dir=. --allow-precompiled bin/mi_qsort.cwasm ${ARGS}
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_qsort.wasm
+	wasm3 bin/mi_qsort.wasm ${ARGS}
+
+.PHONY: run_wamr_int
+run_wamr_int: bin/mi_qsort.wasm
+	iwasm --dir=. bin/mi_qsort.wasm ${ARGS}
+
+.PHONY: run_wamr_aot
+run_wamr_aot: bin/mi_qsort.aot
+	iwasm --dir=. bin/mi_qsort.aot ${ARGS}
+
 .PHONY: run_native
 run_native: bin/mi_qsort.out
-	./bin/mi_qsort.out input_small.dat
+	./bin/mi_qsort.out ${ARGS}
 
-bench.csv: bin/mi_qsort.wasm bin/mi_qsort.cwasm bin/mi_qsort.out
-	hyperfine -N -w 10 \
-	-n mi_qsort_native './bin/mi_qsort.out input_small.dat' \
-	-n mi_qsort_wasmtime_jit 'wasmtime run --dir=. bin/mi_qsort.wasm input_small.dat' \
-	-n mi_qsort_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_qsort.cwasm input_small.dat' \
-	-n mi_qsort_wasm3 'wasm3 bin/mi_qsort.wasm input_small.dat' \
-	--export-csv bench.csv
+bench.csv: bin/mi_qsort.wasm bin/mi_qsort.cwasm bin/mi_qsort.out bin/mi_qsort.aot
+	hyperfine -N -w 10 --export-csv bench.csv \
+	-n mi_qsort_native       './bin/mi_qsort.out ${ARGS}' \
+	-n mi_qsort_wasmtime_jit 'wasmtime run --dir=. bin/mi_qsort.wasm ${ARGS}' \
+	-n mi_qsort_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_qsort.cwasm ${ARGS}' \
+	-n mi_qsort_wasm3        'wasm3 bin/mi_qsort.wasm ${ARGS}' \
+	-n mi_qsort_wamr_int     'iwasm --dir=. bin/mi_qsort.wasm ${ARGS}' \
+	-n mi_qsort_wamr_aot     'iwasm --dir=. bin/mi_qsort.aot ${ARGS}'

@@ -1,10 +1,7 @@
 include ../common.mk
 
 LDFLAGS+= -lm
-
 ARGS= 8 32768
-
-# WASMLDFLAGS=${LDFLAGS} -Wl,-z,stack-size=524288,--allow-undefined,--threads=1
 
 .PHONY: all
 all: \

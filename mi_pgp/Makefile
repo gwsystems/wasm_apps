@@ -1,33 +1,17 @@
-CC=clang
-CFLAGS=-O3 -I. -Wall -Wno-everything -DUNIX -D_BSD -DPORTABLE -DUSE_NBIO -DMPORTABLE
-LDFLAGS=-flto
+include ../common.mk
 
-WASMCC=${WASI_SDK_PATH}/bin/clang --sysroot=${WASI_SDK_PATH}/share/wasi-sysroot/
-WASMCFLAGS=${CFLAGS} -D_WASI_EMULATED_SIGNAL
+CFLAGS+= -DUNIX -D_BSD -DPORTABLE -DUSE_NBIO -DMPORTABLE
+WASMCFLAGS+= -DUNIX -D_BSD -DPORTABLE -DUSE_NBIO -DMPORTABLE -D_WASI_EMULATED_SIGNAL
+WASMLDFLAGS+= -lwasi-emulated-signal
 
-# See https://lld.llvm.org/WebAssembly.html
-WASMLDFLAGS=${LDFLAGS} -Wl,-z,stack-size=524288,--allow-undefined,--threads=1 -lwasi-emulated-signal
-
-# Clang 12 WebAssembly Options
-# See https://clang.llvm.org/docs/ClangCommandLineReference.html#webassembly
-# Disable WebAssembly Proposals aWsm does not support
-WASMCFLAGS+= -mno-atomics # https://github.com/WebAssembly/threads
-WASMCFLAGS+= -mno-bulk-memory # https://github.com/WebAssembly/bulk-memory-operations
-WASMCFLAGS+= -mno-exception-handling # https://github.com/WebAssembly/exception-handling
-WASMCFLAGS+= -mno-multivalue # https://github.com/WebAssembly/multi-value
-# Mutable globals still exist, but disables the ability to import mutable globals
-WASMCFLAGS+= -mno-mutable-globals # https://github.com/WebAssembly/mutable-global
-WASMCFLAGS+= -mno-nontrapping-fptoint # https://github.com/WebAssembly/nontrapping-float-to-int-conversions
-WASMCFLAGS+= -mno-reference-types # https://github.com/WebAssembly/reference-types
-WASMCFLAGS+= -mno-sign-ext # https://github.com/WebAssembly/sign-extension-ops
-WASMCFLAGS+= -mno-tail-call # https://github.com/WebAssembly/tail-call
-WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
+ARGS=-sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu
 
 .PHONY: all
 all: \
 	bin/mi_pgp.out \
 	bin/mi_pgp.wasm \
-	bin/mi_pgp.cwasm
+	bin/mi_pgp.cwasm \
+	bin/mi_pgp.aot
 
 .PHONY: clean
 clean:
@@ -38,36 +22,39 @@ bin/mi_pgp.wasm: *.c
 	@mkdir -p bin
 	${WASMCC} ${WASMCFLAGS} ${WASMLDFLAGS} $^ -o $@
 
-%.wat: %.wasm
-	wasm2wat $< -o $@
-
-%.cwasm: %.wasm
-	wasmtime compile $< -o $@
-
-.PHONY: run_wasmtime_jit
-run_wasmtime_jit: bin/mi_pgp.wasm
-	wasmtime bin/mi_pgp.wasm '-sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu'
-
-.PHONY: run_wasmtime_aot
-run_wasmtime_aot: bin/mi_pgp.cwasm
-	wasmtime run --allow-precompiled bin/mi_pgp.cwasm '-sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu'
-
-.PHONY: run_wasm3
-run_wasm3: bin/mi_pgp.wasm
-	wasm3 bin/mi_pgp.wasm -sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu
-
 bin/mi_pgp.out: *.c
 	@mkdir -p bin
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
+.PHONY: run_wasmtime_jit
+run_wasmtime_jit: bin/mi_pgp.wasm
+	wasmtime run --dir=. bin/mi_pgp.wasm ${ARGS}
+
+.PHONY: run_wasmtime_aot
+run_wasmtime_aot: bin/mi_pgp.cwasm
+	wasmtime run --dir=. --allow-precompiled bin/mi_pgp.cwasm ${ARGS}
+
+.PHONY: run_wasm3
+run_wasm3: bin/mi_pgp.wasm
+	wasm3 bin/mi_pgp.wasm ${ARGS}
+
+.PHONY: run_wamr_int
+run_wamr_int: bin/mi_pgp.wasm
+	iwasm --dir=. bin/mi_pgp.wasm ${ARGS}
+
+.PHONY: run_wamr_aot
+run_wamr_aot: bin/mi_pgp.aot
+	iwasm --dir=. bin/mi_pgp.aot ${ARGS}
+
 .PHONY: run_native
 run_native: bin/mi_pgp.out
-	./bin/mi_pgp.out -sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu
+	./bin/mi_pgp.out ${ARGS}
 
-bench.csv: bin/mi_pgp.wasm bin/mi_pgp.cwasm bin/mi_pgp.out
-	hyperfine -N -w 10 \
-	-n mi_pgp_native './bin/mi_pgp.out -sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu' \
-	-n mi_pgp_wasmtime_jit 'wasmtime run bin/mi_pgp.wasm -sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu' \
-	-n mi_pgp_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_pgp.cwasm -sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu' \
-	-n mi_pgp_wasm3 'wasm3 bin/mi_pgp.wasm -sa -z "this is a test" -u taustin@eecs.umich.edu testin.txt austin@umich.edu' \
-	--export-csv bench.csv
+bench.csv: bin/mi_pgp.wasm bin/mi_pgp.cwasm bin/mi_pgp.out bin/mi_pgp.aot
+	hyperfine -N -w 10 --export-csv bench.csv \
+	-n mi_pgp_native       './bin/mi_pgp.out ${ARGS} \
+	-n mi_pgp_wasmtime_jit 'wasmtime run bin/mi_pgp.wasm ${ARGS} \
+	-n mi_pgp_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_pgp.cwasm ${ARGS} \
+	-n mi_pgp_wamr_int     'iwasm bin/mi_pgp.wasm ${ARGS}' \
+	-n mi_pgp_wamr_aot     'iwasm bin/mi_pgp.aot ${ARGS}' \
+	-n mi_pgp_wasm3        'wasm3 bin/mi_pgp.wasm ${ARGS}
