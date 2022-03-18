@@ -49,12 +49,11 @@ run_wamr_aot: bin/mi_susan.aot
 run_native: bin/mi_susan.out
 	./bin/mi_susan.out ${ARGS}
 
-bench.csv: bin/mi_susan.wasm bin/mi_susan.cwasm bin/mi_susan.out
+bench.csv: bin/mi_susan.wasm bin/mi_susan.cwasm bin/mi_susan.out bin/mi_susan.aot
 	hyperfine -N -w 10 --export-csv bench.csv -c 'rm output.pgm' \
 		-n mi_susan_native          './bin/mi_susan.out ${ARGS}' \
 		-n mi_susan_wasmtime_jit    'wasmtime run --dir=. bin/mi_susan.wasm ${ARGS}' \
 		-n mi_susan_wasmtime_aot    'wasmtime run --dir=. --allow-precompiled bin/mi_susan.cwasm ${ARGS}' \
 		-n mi_susan_wamr_int 'iwasm --dir=. bin/mi_susan.wasm ${ARGS}' \
 		-n mi_susan_wamr_aot 'iwasm --dir=. bin/mi_susan.aot ${ARGS}'
-
-# -n mi_susan_wasm3           'wasm3 bin/mi_susan.wasm ${ARGS}' \
+# -n mi_susan_wasm3           'wasm3 bin/mi_susan.wasm ${ARGS}'

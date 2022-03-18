@@ -3,7 +3,6 @@ all: \
 	all.out \
 	all.wasm \
 
-
 .PHONY: all.out
 all.out: \
 	dist/app_pid.out \
