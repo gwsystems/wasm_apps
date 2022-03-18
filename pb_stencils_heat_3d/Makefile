@@ -46,9 +46,9 @@ run_native: bin/pb_stencils_heat_3d.out
 
 bench.csv: bin/pb_stencils_heat_3d.wasm bin/pb_stencils_heat_3d.cwasm bin/pb_stencils_heat_3d.out bin/pb_stencils_heat_3d.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_stencils_heat_3d_native       './bin/pb_stencils_heat_3d.out' \
-	-n pb_stencils_heat_3d_wasmtime_jit 'wasmtime run bin/pb_stencils_heat_3d.wasm' \
-	-n pb_stencils_heat_3d_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_stencils_heat_3d.cwasm' \
-	-n pb_stencils_heat_3d_wasm3        'wasm3 bin/pb_stencils_heat_3d.wasm' \
-	-n pb_stencils_heat_3d_wamr_int     'iwasm bin/pb_stencils_heat_3d.wasm' \
-	-n pb_stencils_heat_3d_wamr_aot     'iwasm bin/pb_stencils_heat_3d.aot'
+		-n pb_stencils_heat_3d_native       './bin/pb_stencils_heat_3d.out' \
+		-n pb_stencils_heat_3d_wasmtime_jit 'wasmtime run bin/pb_stencils_heat_3d.wasm' \
+		-n pb_stencils_heat_3d_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_stencils_heat_3d.cwasm' \
+		-n pb_stencils_heat_3d_wasm3        'wasm3 bin/pb_stencils_heat_3d.wasm' \
+		-n pb_stencils_heat_3d_wamr_int     'iwasm bin/pb_stencils_heat_3d.wasm' \
+		-n pb_stencils_heat_3d_wamr_aot     'iwasm bin/pb_stencils_heat_3d.aot'

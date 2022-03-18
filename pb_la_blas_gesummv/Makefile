@@ -46,9 +46,9 @@ run_native: bin/pb_la_blas_gesummv.out
 
 bench.csv: bin/pb_la_blas_gesummv.wasm bin/pb_la_blas_gesummv.cwasm bin/pb_la_blas_gesummv.out bin/pb_la_blas_gesummv.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_la_blas_gesummv_native       './bin/pb_la_blas_gesummv.out' \
-	-n pb_la_blas_gesummv_wasmtime_jit 'wasmtime run bin/pb_la_blas_gesummv.wasm' \
-	-n pb_la_blas_gesummv_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_blas_gesummv.cwasm' \
-	-n pb_la_blas_gesummv_wasm3        'wasm3 bin/pb_la_blas_gesummv.wasm' \
-	-n pb_la_blas_gesummv_wamr_int     'iwasm bin/pb_la_blas_gesummv.wasm' \
-	-n pb_la_blas_gesummv_wamr_aot     'iwasm bin/pb_la_blas_gesummv.aot'
+		-n pb_la_blas_gesummv_native       './bin/pb_la_blas_gesummv.out' \
+		-n pb_la_blas_gesummv_wasmtime_jit 'wasmtime run bin/pb_la_blas_gesummv.wasm' \
+		-n pb_la_blas_gesummv_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_blas_gesummv.cwasm' \
+		-n pb_la_blas_gesummv_wasm3        'wasm3 bin/pb_la_blas_gesummv.wasm' \
+		-n pb_la_blas_gesummv_wamr_int     'iwasm bin/pb_la_blas_gesummv.wasm' \
+		-n pb_la_blas_gesummv_wamr_aot     'iwasm bin/pb_la_blas_gesummv.aot'

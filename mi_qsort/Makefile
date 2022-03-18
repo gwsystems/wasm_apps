@@ -53,9 +53,9 @@ run_native: bin/mi_qsort.out
 
 bench.csv: bin/mi_qsort.wasm bin/mi_qsort.cwasm bin/mi_qsort.out bin/mi_qsort.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n mi_qsort_native       './bin/mi_qsort.out ${ARGS}' \
-	-n mi_qsort_wasmtime_jit 'wasmtime run --dir=. bin/mi_qsort.wasm ${ARGS}' \
-	-n mi_qsort_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_qsort.cwasm ${ARGS}' \
-	-n mi_qsort_wasm3        'wasm3 bin/mi_qsort.wasm ${ARGS}' \
-	-n mi_qsort_wamr_int     'iwasm --dir=. bin/mi_qsort.wasm ${ARGS}' \
-	-n mi_qsort_wamr_aot     'iwasm --dir=. bin/mi_qsort.aot ${ARGS}'
+		-n mi_qsort_native       './bin/mi_qsort.out ${ARGS}' \
+		-n mi_qsort_wasmtime_jit 'wasmtime run --dir=. bin/mi_qsort.wasm ${ARGS}' \
+		-n mi_qsort_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_qsort.cwasm ${ARGS}' \
+		-n mi_qsort_wasm3        'wasm3 bin/mi_qsort.wasm ${ARGS}' \
+		-n mi_qsort_wamr_int     'iwasm --dir=. bin/mi_qsort.wasm ${ARGS}' \
+		-n mi_qsort_wamr_aot     'iwasm --dir=. bin/mi_qsort.aot ${ARGS}'

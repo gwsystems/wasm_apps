@@ -49,6 +49,6 @@ bench.csv: bin/mi_adpcm.wasm bin/mi_adpcm.cwasm bin/mi_adpcm.out bin/mi_adpcm.ao
 		-n mi_adpcm_native       './bin/mi_adpcm.out < large.pcm' \
 		-n mi_adpcm_wasmtime_jit 'wasmtime run bin/mi_adpcm.wasm < large.pcm' \
 		-n mi_adpcm_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_adpcm.cwasm < large.pcm' \
-		-n mi_adpcm_wamr_int     'iwasm fibonacci.wasm < large.pcm' \
-		-n mi_adpcm_wamr_aot     'iwasm fibonacci.aot < large.pcm' \
+		-n mi_adpcm_wamr_int     'iwasm bin/mi_adpcm.wasm < large.pcm' \
+		-n mi_adpcm_wamr_aot     'iwasm bin/mi_adpcm.aot < large.pcm' \
 		-n mi_adpcm_wasm3        'wasm3 bin/mi_adpcm.wasm < large.pcm' \

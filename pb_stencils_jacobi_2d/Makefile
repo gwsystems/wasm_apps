@@ -46,9 +46,9 @@ run_native: bin/pb_stencils_jacobi_2d.out
 
 bench.csv: bin/pb_stencils_jacobi_2d.wasm bin/pb_stencils_jacobi_2d.cwasm bin/pb_stencils_jacobi_2d.out bin/pb_stencils_jacobi_2d.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_stencils_jacobi_2d_native       './bin/pb_stencils_jacobi_2d.out' \
-	-n pb_stencils_jacobi_2d_wasmtime_jit 'wasmtime run bin/pb_stencils_jacobi_2d.wasm' \
-	-n pb_stencils_jacobi_2d_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_stencils_jacobi_2d.cwasm' \
-	-n pb_stencils_jacobi_2d_wasm3        'wasm3 bin/pb_stencils_jacobi_2d.wasm' \
-	-n pb_stencils_jacobi_2d_wamr_int     'iwasm bin/pb_stencils_jacobi_2d.wasm' \
-	-n pb_stencils_jacobi_2d_wamr_aot     'iwasm bin/pb_stencils_jacobi_2d.aot'
+		-n pb_stencils_jacobi_2d_native       './bin/pb_stencils_jacobi_2d.out' \
+		-n pb_stencils_jacobi_2d_wasmtime_jit 'wasmtime run bin/pb_stencils_jacobi_2d.wasm' \
+		-n pb_stencils_jacobi_2d_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_stencils_jacobi_2d.cwasm' \
+		-n pb_stencils_jacobi_2d_wasm3        'wasm3 bin/pb_stencils_jacobi_2d.wasm' \
+		-n pb_stencils_jacobi_2d_wamr_int     'iwasm bin/pb_stencils_jacobi_2d.wasm' \
+		-n pb_stencils_jacobi_2d_wamr_aot     'iwasm bin/pb_stencils_jacobi_2d.aot'

@@ -48,9 +48,9 @@ run_native: bin/pb_datamining_correlation.out
 
 bench.csv: bin/pb_datamining_correlation.wasm bin/pb_datamining_correlation.cwasm bin/pb_datamining_correlation.out bin/pb_datamining_correlation.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_datamining_correlation_native       './bin/pb_datamining_correlation.out' \
-	-n pb_datamining_correlation_wasmtime_jit 'wasmtime run bin/pb_datamining_correlation.wasm' \
-	-n pb_datamining_correlation_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_datamining_correlation.cwasm' \
-	-n pb_datamining_correlation_wasm3        'wasm3 bin/pb_datamining_correlation.wasm' \
-	-n pb_datamining_correlation_wamr_int     'iwasm bin/pb_datamining_correlation.wasm' \
-	-n pb_datamining_correlation_wamr_aot     'iwasm bin/pb_datamining_correlation.aot'
+		-n pb_datamining_correlation_native       './bin/pb_datamining_correlation.out' \
+		-n pb_datamining_correlation_wasmtime_jit 'wasmtime run bin/pb_datamining_correlation.wasm' \
+		-n pb_datamining_correlation_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_datamining_correlation.cwasm' \
+		-n pb_datamining_correlation_wasm3        'wasm3 bin/pb_datamining_correlation.wasm' \
+		-n pb_datamining_correlation_wamr_int     'iwasm bin/pb_datamining_correlation.wasm' \
+		-n pb_datamining_correlation_wamr_aot     'iwasm bin/pb_datamining_correlation.aot'

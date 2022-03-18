@@ -48,9 +48,9 @@ run_native: bin/mi_patricia_cm.out
 
 bench.csv: bin/mi_patricia_cm.wasm bin/mi_patricia_cm.cwasm bin/mi_patricia_cm.out bin/mi_patricia_cm.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n mi_patricia_cm_native       './bin/mi_patricia_cm.out' \
-	-n mi_patricia_cm_wasmtime_jit 'wasmtime run --dir=. bin/mi_patricia_cm.wasm ${ARGS}' \
-	-n mi_patricia_cm_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_patricia_cm.cwasm ${ARGS}' \
-	-n mi_patricia_cm_wasm3        'wasm3 bin/mi_patricia_cm.wasm ${ARGS}' \
-	-n mi_patricia_cm_wamr_int     'iwasm --dir=. bin/mi_patricia_cm.wasm ${ARGS}' \
-	-n mi_patricia_cm_wamr_aot     'iwasm --dir=. bin/mi_patricia_cm.aot ${ARGS}'
+		-n mi_patricia_cm_native       './bin/mi_patricia_cm.out' \
+		-n mi_patricia_cm_wasmtime_jit 'wasmtime run --dir=. bin/mi_patricia_cm.wasm ${ARGS}' \
+		-n mi_patricia_cm_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_patricia_cm.cwasm ${ARGS}' \
+		-n mi_patricia_cm_wasm3        'wasm3 bin/mi_patricia_cm.wasm ${ARGS}' \
+		-n mi_patricia_cm_wamr_int     'iwasm --dir=. bin/mi_patricia_cm.wasm ${ARGS}' \
+		-n mi_patricia_cm_wamr_aot     'iwasm --dir=. bin/mi_patricia_cm.aot ${ARGS}'

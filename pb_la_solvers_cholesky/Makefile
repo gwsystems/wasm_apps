@@ -48,9 +48,9 @@ run_native: bin/pb_la_solvers_cholesky.out
 
 bench.csv: bin/pb_la_solvers_cholesky.wasm bin/pb_la_solvers_cholesky.cwasm bin/pb_la_solvers_cholesky.out bin/pb_la_solvers_cholesky.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_la_solvers_cholesky_native       './bin/pb_la_solvers_cholesky.out' \
-	-n pb_la_solvers_cholesky_wasmtime_jit 'wasmtime run bin/pb_la_solvers_cholesky.wasm' \
-	-n pb_la_solvers_cholesky_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_cholesky.cwasm' \
-	-n pb_la_solvers_cholesky_wasm3        'wasm3 bin/pb_la_solvers_cholesky.wasm' \
-	-n pb_la_solvers_cholesky_wamr_int     'iwasm bin/pb_la_solvers_cholesky.wasm' \
-	-n pb_la_solvers_cholesky_wamr_aot     'iwasm bin/pb_la_solvers_cholesky.aot'
+		-n pb_la_solvers_cholesky_native       './bin/pb_la_solvers_cholesky.out' \
+		-n pb_la_solvers_cholesky_wasmtime_jit 'wasmtime run bin/pb_la_solvers_cholesky.wasm' \
+		-n pb_la_solvers_cholesky_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_cholesky.cwasm' \
+		-n pb_la_solvers_cholesky_wasm3        'wasm3 bin/pb_la_solvers_cholesky.wasm' \
+		-n pb_la_solvers_cholesky_wamr_int     'iwasm bin/pb_la_solvers_cholesky.wasm' \
+		-n pb_la_solvers_cholesky_wamr_aot     'iwasm bin/pb_la_solvers_cholesky.aot'

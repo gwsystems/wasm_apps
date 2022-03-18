@@ -46,9 +46,9 @@ run_native: bin/mi_sha.out
 
 bench.csv: bin/mi_sha.wasm bin/mi_sha.cwasm bin/mi_sha.out
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n mi_sha_native       './bin/mi_sha.out' \
-	-n mi_sha_wasmtime_jit 'wasmtime run --dir=. bin/mi_sha.wasm input_large.asc' \
-	-n mi_sha_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_sha.cwasm input_large.asc' \
-	-n mi_sha_wasm3        'wasm3 bin/mi_sha.wasm input_large.asc' \
-	-n mi_rsynth_wamr_int  'iwasm --dir=. bin/mi_rsynth.wasm input_large.asc' \
-	-n mi_rsynth_wamr_aot  'iwasm --dir=. bin/mi_rsynth.aot input_large.asc'
+		-n mi_sha_native       './bin/mi_sha.out input_large.asc' \
+		-n mi_sha_wasmtime_jit 'wasmtime run --dir=. bin/mi_sha.wasm input_large.asc' \
+		-n mi_sha_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_sha.cwasm input_large.asc' \
+		-n mi_sha_wasm3        'wasm3 bin/mi_sha.wasm input_large.asc' \
+		-n mi_rsynth_wamr_int  'iwasm --dir=. bin/mi_rsynth.wasm input_large.asc' \
+		-n mi_rsynth_wamr_aot  'iwasm --dir=. bin/mi_rsynth.aot input_large.asc'

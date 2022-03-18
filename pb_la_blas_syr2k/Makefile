@@ -46,9 +46,9 @@ run_native: bin/pb_la_blas_syr2k.out
 
 bench.csv: bin/pb_la_blas_syr2k.wasm bin/pb_la_blas_syr2k.cwasm bin/pb_la_blas_syr2k.out bin/pb_la_blas_syr2k.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_la_blas_syr2k_native       './bin/pb_la_blas_syr2k.out' \
-	-n pb_la_blas_syr2k_wasmtime_jit 'wasmtime run bin/pb_la_blas_syr2k.wasm' \
-	-n pb_la_blas_syr2k_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_blas_syr2k.cwasm' \
-	-n pb_la_blas_syr2k_wasm3        'wasm3 bin/pb_la_blas_syr2k.wasm' \
-	-n pb_la_blas_syr2k_wamr_int     'iwasm bin/pb_la_blas_syr2k.wasm' \
-	-n pb_la_blas_syr2k_wamr_aot     'iwasm bin/pb_la_blas_syr2k.aot'
+		-n pb_la_blas_syr2k_native       './bin/pb_la_blas_syr2k.out' \
+		-n pb_la_blas_syr2k_wasmtime_jit 'wasmtime run bin/pb_la_blas_syr2k.wasm' \
+		-n pb_la_blas_syr2k_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_blas_syr2k.cwasm' \
+		-n pb_la_blas_syr2k_wasm3        'wasm3 bin/pb_la_blas_syr2k.wasm' \
+		-n pb_la_blas_syr2k_wamr_int     'iwasm bin/pb_la_blas_syr2k.wasm' \
+		-n pb_la_blas_syr2k_wamr_aot     'iwasm bin/pb_la_blas_syr2k.aot'

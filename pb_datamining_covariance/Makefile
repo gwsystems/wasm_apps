@@ -48,9 +48,9 @@ run_native: bin/pb_datamining_covariance.out
 
 bench.csv: bin/pb_datamining_covariance.wasm bin/pb_datamining_covariance.cwasm bin/pb_datamining_covariance.out bin/pb_datamining_covariance.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_datamining_covariance_native       './bin/pb_datamining_covariance.out' \
-	-n pb_datamining_covariance_wasmtime_jit 'wasmtime run bin/pb_datamining_covariance.wasm' \
-	-n pb_datamining_covariance_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_datamining_covariance.cwasm' \
-	-n pb_datamining_covariance_wasm3        'wasm3 bin/pb_datamining_covariance.wasm' \
-	-n pb_datamining_covariance_wamr_int     'iwasm bin/pb_datamining_covariance.wasm' \
-	-n pb_datamining_covariance_wamr_aot     'iwasm bin/pb_datamining_covariance.aot'
+		-n pb_datamining_covariance_native       './bin/pb_datamining_covariance.out' \
+		-n pb_datamining_covariance_wasmtime_jit 'wasmtime run bin/pb_datamining_covariance.wasm' \
+		-n pb_datamining_covariance_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_datamining_covariance.cwasm' \
+		-n pb_datamining_covariance_wasm3        'wasm3 bin/pb_datamining_covariance.wasm' \
+		-n pb_datamining_covariance_wamr_int     'iwasm bin/pb_datamining_covariance.wasm' \
+		-n pb_datamining_covariance_wamr_aot     'iwasm bin/pb_datamining_covariance.aot'

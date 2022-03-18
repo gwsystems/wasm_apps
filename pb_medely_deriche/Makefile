@@ -46,9 +46,9 @@ run_native: bin/pb_medely_deriche.out
 
 bench.csv: bin/pb_medely_deriche.wasm bin/pb_medely_deriche.cwasm bin/pb_medely_deriche.out bin/pb_medely_deriche.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_medely_deriche_native       './bin/pb_medely_deriche.out' \
-	-n pb_medely_deriche_wasmtime_jit 'wasmtime run bin/pb_medely_deriche.wasm' \
-	-n pb_medely_deriche_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_medely_deriche.cwasm' \
-	-n pb_medely_deriche_wasm3        'wasm3 bin/pb_medely_deriche.wasm' \
-	-n pb_medely_deriche_wamr_int     'iwasm bin/pb_medely_deriche.wasm' \
-	-n pb_medely_deriche_wamr_aot     'iwasm bin/pb_medely_deriche.aot'
+		-n pb_medely_deriche_native       './bin/pb_medely_deriche.out' \
+		-n pb_medely_deriche_wasmtime_jit 'wasmtime run bin/pb_medely_deriche.wasm' \
+		-n pb_medely_deriche_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_medely_deriche.cwasm' \
+		-n pb_medely_deriche_wasm3        'wasm3 bin/pb_medely_deriche.wasm' \
+		-n pb_medely_deriche_wamr_int     'iwasm bin/pb_medely_deriche.wasm' \
+		-n pb_medely_deriche_wamr_aot     'iwasm bin/pb_medely_deriche.aot'

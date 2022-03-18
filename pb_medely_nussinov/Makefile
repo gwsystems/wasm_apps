@@ -46,9 +46,9 @@ run_native: bin/pb_medely_nussinov.out
 
 bench.csv: bin/pb_medely_nussinov.wasm bin/pb_medely_nussinov.cwasm bin/pb_medely_nussinov.out bin/pb_medely_nussinov.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_medely_nussinov_native       './bin/pb_medely_nussinov.out' \
-	-n pb_medely_nussinov_wasmtime_jit 'wasmtime run bin/pb_medely_nussinov.wasm' \
-	-n pb_medely_nussinov_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_medely_nussinov.cwasm' \
-	-n pb_medely_nussinov_wasm3        'wasm3 bin/pb_medely_nussinov.wasm' \
-	-n pb_medely_nussinov_wamr_int     'iwasm bin/pb_medely_nussinov.wasm' \
-	-n pb_medely_nussinov_wamr_aot     'iwasm bin/pb_medely_nussinov.aot'
+		-n pb_medely_nussinov_native       './bin/pb_medely_nussinov.out' \
+		-n pb_medely_nussinov_wasmtime_jit 'wasmtime run bin/pb_medely_nussinov.wasm' \
+		-n pb_medely_nussinov_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_medely_nussinov.cwasm' \
+		-n pb_medely_nussinov_wasm3        'wasm3 bin/pb_medely_nussinov.wasm' \
+		-n pb_medely_nussinov_wamr_int     'iwasm bin/pb_medely_nussinov.wasm' \
+		-n pb_medely_nussinov_wamr_aot     'iwasm bin/pb_medely_nussinov.aot'

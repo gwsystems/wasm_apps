@@ -46,9 +46,9 @@ run_native: bin/mi_stringsearch.out
 
 bench.csv: bin/mi_stringsearch.wasm bin/mi_stringsearch.cwasm bin/mi_stringsearch.out
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n mi_stringsearch_native       './bin/mi_stringsearch.out' \
-	-n mi_stringsearch_wasmtime_jit 'wasmtime run bin/mi_stringsearch.wasm' \
-	-n mi_stringsearch_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_stringsearch.cwasm' \
-	-n mi_stringsearch_wasm3        'wasm3 bin/mi_stringsearch.wasm' \
-	-n mi_stringsearch_wamr_int     'iwasm bin/mi_stringsearch.wasm' \
-	-n mi_stringsearch_wamr_aot     'iwasm bin/mi_stringsearch.aot'
+		-n mi_stringsearch_native       './bin/mi_stringsearch.out' \
+		-n mi_stringsearch_wasmtime_jit 'wasmtime run bin/mi_stringsearch.wasm' \
+		-n mi_stringsearch_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_stringsearch.cwasm' \
+		-n mi_stringsearch_wasm3        'wasm3 bin/mi_stringsearch.wasm' \
+		-n mi_stringsearch_wamr_int     'iwasm bin/mi_stringsearch.wasm' \
+		-n mi_stringsearch_wamr_aot     'iwasm bin/mi_stringsearch.aot'

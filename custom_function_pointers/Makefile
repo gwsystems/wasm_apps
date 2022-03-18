@@ -47,7 +47,7 @@ run_native: bin/custom_function_pointers.out
 	./bin/custom_function_pointers.out
 
 bench.csv: bin/custom_function_pointers.wasm bin/custom_function_pointers.cwasm bin/custom_function_pointers.out bin/custom_function_pointers.aot
-	hyperfine -N -w 10 --export-csv bench.csv \
+	hyperfine -N -w 1 -r 2 --export-csv bench.csv \
 		-n custom_function_pointers_native       './bin/custom_function_pointers.out' \
 		-n custom_function_pointers_wasmtime_jit 'wasmtime run bin/custom_function_pointers.wasm' \
 		-n custom_function_pointers_wasmtime_aot 'wasmtime run --allow-precompiled bin/custom_function_pointers.cwasm' \

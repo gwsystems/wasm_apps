@@ -48,9 +48,9 @@ run_native: bin/pb_la_blas_gemm.out
 
 bench.csv: bin/pb_la_blas_gemm.wasm bin/pb_la_blas_gemm.cwasm bin/pb_la_blas_gemm.out bin/pb_la_blas_gemm.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_la_blas_gemm_native       './bin/pb_la_blas_gemm.out' \
-	-n pb_la_blas_gemm_wasmtime_jit 'wasmtime run bin/pb_la_blas_gemm.wasm' \
-	-n pb_la_blas_gemm_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_blas_gemm.cwasm' \
-	-n pb_la_blas_gemm_wasm3        'wasm3 bin/pb_la_blas_gemm.wasm' \
-	-n pb_la_blas_gemm_wamr_int     'iwasm bin/pb_la_blas_gemm.wasm' \
-	-n pb_la_blas_gemm_wamr_aot     'iwasm bin/pb_la_blas_gemm.aot'
+		-n pb_la_blas_gemm_native       './bin/pb_la_blas_gemm.out' \
+		-n pb_la_blas_gemm_wasmtime_jit 'wasmtime run bin/pb_la_blas_gemm.wasm' \
+		-n pb_la_blas_gemm_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_blas_gemm.cwasm' \
+		-n pb_la_blas_gemm_wasm3        'wasm3 bin/pb_la_blas_gemm.wasm' \
+		-n pb_la_blas_gemm_wamr_int     'iwasm bin/pb_la_blas_gemm.wasm' \
+		-n pb_la_blas_gemm_wamr_aot     'iwasm bin/pb_la_blas_gemm.aot'

@@ -48,9 +48,9 @@ run_native: bin/pb_la_solvers_gramschmidt.out
 
 bench.csv: bin/pb_la_solvers_gramschmidt.wasm bin/pb_la_solvers_gramschmidt.cwasm bin/pb_la_solvers_gramschmidt.out bin/pb_la_solvers_gramschmidt.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_la_solvers_gramschmidt_native       './bin/pb_la_solvers_gramschmidt.out' \
-	-n pb_la_solvers_gramschmidt_wasmtime_jit 'wasmtime run bin/pb_la_solvers_gramschmidt.wasm' \
-	-n pb_la_solvers_gramschmidt_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_gramschmidt.cwasm' \
-	-n pb_la_solvers_gramschmidt_wasm3        'wasm3 bin/pb_la_solvers_gramschmidt.wasm' \
-	-n pb_la_solvers_gramschmidt_wamr_int     'iwasm bin/pb_la_solvers_gramschmidt.wasm' \
-	-n pb_la_solvers_gramschmidt_wamr_aot     'iwasm bin/pb_la_solvers_gramschmidt.aot'
+		-n pb_la_solvers_gramschmidt_native       './bin/pb_la_solvers_gramschmidt.out' \
+		-n pb_la_solvers_gramschmidt_wasmtime_jit 'wasmtime run bin/pb_la_solvers_gramschmidt.wasm' \
+		-n pb_la_solvers_gramschmidt_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_gramschmidt.cwasm' \
+		-n pb_la_solvers_gramschmidt_wasm3        'wasm3 bin/pb_la_solvers_gramschmidt.wasm' \
+		-n pb_la_solvers_gramschmidt_wamr_int     'iwasm bin/pb_la_solvers_gramschmidt.wasm' \
+		-n pb_la_solvers_gramschmidt_wamr_aot     'iwasm bin/pb_la_solvers_gramschmidt.aot'

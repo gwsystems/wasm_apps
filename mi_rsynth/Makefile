@@ -51,9 +51,9 @@ run_native: bin/mi_rsynth.out
 
 bench.csv: bin/mi_rsynth.wasm bin/mi_rsynth.cwasm bin/mi_rsynth.out  bin/mi_rsynth.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n mi_rsynth_native       './bin/mi_rsynth.out' \
-	-n mi_rsynth_wasmtime_jit 'wasmtime run bin/mi_rsynth.wasm -- ${ARGS} < largeinput.txt' \
-	-n mi_rsynth_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_rsynth.cwasm -- ${ARGS} < largeinput.txt' \
-	-n mi_rsynth_wasm3        'wasm3 bin/mi_rsynth.wasm ${ARGS} < largeinput.txt' \
-	-n mi_rsynth_wamr_int     'iwasm bin/mi_rsynth.wasm ${ARGS} < largeinput.txt' \
-	-n mi_rsynth_wamr_aot     'iwasm bin/mi_rsynth.aot ${ARGS} < largeinput.txt'
+		-n mi_rsynth_native       './bin/mi_rsynth.out ${ARGS} < largeinput.txt' \
+		-n mi_rsynth_wasmtime_jit 'wasmtime run bin/mi_rsynth.wasm -- ${ARGS} < largeinput.txt' \
+		-n mi_rsynth_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_rsynth.cwasm -- ${ARGS} < largeinput.txt' \
+		-n mi_rsynth_wasm3        'wasm3 bin/mi_rsynth.wasm ${ARGS} < largeinput.txt' \
+		-n mi_rsynth_wamr_int     'iwasm bin/mi_rsynth.wasm ${ARGS} < largeinput.txt' \
+		-n mi_rsynth_wamr_aot     'iwasm bin/mi_rsynth.aot ${ARGS} < largeinput.txt'

@@ -46,9 +46,9 @@ run_native: bin/pb_la_kernels_mvt.out
 
 bench.csv: bin/pb_la_kernels_mvt.wasm bin/pb_la_kernels_mvt.cwasm bin/pb_la_kernels_mvt.out bin/pb_la_kernels_mvt.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_la_kernels_mvt_native       './bin/pb_la_kernels_mvt.out' \
-	-n pb_la_kernels_mvt_wasmtime_jit 'wasmtime run bin/pb_la_kernels_mvt.wasm' \
-	-n pb_la_kernels_mvt_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_kernels_mvt.cwasm' \
-	-n pb_la_kernels_mvt_wasm3        'wasm3 bin/pb_la_kernels_mvt.wasm' \
-	-n pb_la_kernels_mvt_wamr_int     'iwasm bin/pb_la_kernels_mvt.wasm' \
-	-n pb_la_kernels_mvt_wamr_aot     'iwasm bin/pb_la_kernels_mvt.aot'
+		-n pb_la_kernels_mvt_native       './bin/pb_la_kernels_mvt.out' \
+		-n pb_la_kernels_mvt_wasmtime_jit 'wasmtime run bin/pb_la_kernels_mvt.wasm' \
+		-n pb_la_kernels_mvt_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_kernels_mvt.cwasm' \
+		-n pb_la_kernels_mvt_wasm3        'wasm3 bin/pb_la_kernels_mvt.wasm' \
+		-n pb_la_kernels_mvt_wamr_int     'iwasm bin/pb_la_kernels_mvt.wasm' \
+		-n pb_la_kernels_mvt_wamr_aot     'iwasm bin/pb_la_kernels_mvt.aot'

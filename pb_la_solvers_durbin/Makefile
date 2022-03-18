@@ -46,9 +46,9 @@ run_native: bin/pb_la_solvers_durbin.out
 
 bench.csv: bin/pb_la_solvers_durbin.wasm bin/pb_la_solvers_durbin.cwasm bin/pb_la_solvers_durbin.out bin/pb_la_solvers_durbin.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_la_solvers_durbin_native       './bin/pb_la_solvers_durbin.out' \
-	-n pb_la_solvers_durbin_wasmtime_jit 'wasmtime run bin/pb_la_solvers_durbin.wasm' \
-	-n pb_la_solvers_durbin_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_durbin.cwasm' \
-	-n pb_la_solvers_durbin_wasm3        'wasm3 bin/pb_la_solvers_durbin.wasm' \
-	-n pb_la_solvers_durbin_wamr_int     'iwasm bin/pb_la_solvers_durbin.wasm' \
-	-n pb_la_solvers_durbin_wamr_aot     'iwasm bin/pb_la_solvers_durbin.aot'
+		-n pb_la_solvers_durbin_native       './bin/pb_la_solvers_durbin.out' \
+		-n pb_la_solvers_durbin_wasmtime_jit 'wasmtime run bin/pb_la_solvers_durbin.wasm' \
+		-n pb_la_solvers_durbin_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_durbin.cwasm' \
+		-n pb_la_solvers_durbin_wasm3        'wasm3 bin/pb_la_solvers_durbin.wasm' \
+		-n pb_la_solvers_durbin_wamr_int     'iwasm bin/pb_la_solvers_durbin.wasm' \
+		-n pb_la_solvers_durbin_wamr_aot     'iwasm bin/pb_la_solvers_durbin.aot'

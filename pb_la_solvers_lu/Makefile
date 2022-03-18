@@ -46,9 +46,9 @@ run_native: bin/pb_la_solvers_lu.out
 
 bench.csv: bin/pb_la_solvers_lu.wasm bin/pb_la_solvers_lu.cwasm bin/pb_la_solvers_lu.out bin/pb_la_solvers_lu.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_la_solvers_lu_native       './bin/pb_la_solvers_lu.out' \
-	-n pb_la_solvers_lu_wasmtime_jit 'wasmtime run bin/pb_la_solvers_lu.wasm' \
-	-n pb_la_solvers_lu_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_lu.cwasm' \
-	-n pb_la_solvers_lu_wasm3        'wasm3 bin/pb_la_solvers_lu.wasm' \
-	-n pb_la_solvers_lu_wamr_int     'iwasm bin/pb_la_solvers_lu.wasm' \
-	-n pb_la_solvers_lu_wamr_aot     'iwasm bin/pb_la_solvers_lu.aot'
+		-n pb_la_solvers_lu_native       './bin/pb_la_solvers_lu.out' \
+		-n pb_la_solvers_lu_wasmtime_jit 'wasmtime run bin/pb_la_solvers_lu.wasm' \
+		-n pb_la_solvers_lu_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_lu.cwasm' \
+		-n pb_la_solvers_lu_wasm3        'wasm3 bin/pb_la_solvers_lu.wasm' \
+		-n pb_la_solvers_lu_wamr_int     'iwasm bin/pb_la_solvers_lu.wasm' \
+		-n pb_la_solvers_lu_wamr_aot     'iwasm bin/pb_la_solvers_lu.aot'

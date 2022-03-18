@@ -46,9 +46,9 @@ run_native: bin/pb_la_kernels_2mm.out
 
 bench.csv: bin/pb_la_kernels_2mm.wasm bin/pb_la_kernels_2mm.cwasm bin/pb_la_kernels_2mm.out bin/pb_la_kernels_2mm.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_la_kernels_2mm_native       './bin/pb_la_kernels_2mm.out' \
-	-n pb_la_kernels_2mm_wasmtime_jit 'wasmtime run bin/pb_la_kernels_2mm.wasm' \
-	-n pb_la_kernels_2mm_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_kernels_2mm.cwasm' \
-	-n pb_la_kernels_2mm_wasm3        'wasm3 bin/pb_la_kernels_2mm.wasm' \
-	-n pb_la_kernels_2mm_wamr_int     'iwasm bin/pb_la_kernels_2mm.wasm' \
-	-n pb_la_kernels_2mm_wamr_aot     'iwasm bin/pb_la_kernels_2mm.aot'
+		-n pb_la_kernels_2mm_native       './bin/pb_la_kernels_2mm.out' \
+		-n pb_la_kernels_2mm_wasmtime_jit 'wasmtime run bin/pb_la_kernels_2mm.wasm' \
+		-n pb_la_kernels_2mm_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_kernels_2mm.cwasm' \
+		-n pb_la_kernels_2mm_wasm3        'wasm3 bin/pb_la_kernels_2mm.wasm' \
+		-n pb_la_kernels_2mm_wamr_int     'iwasm bin/pb_la_kernels_2mm.wasm' \
+		-n pb_la_kernels_2mm_wamr_aot     'iwasm bin/pb_la_kernels_2mm.aot'

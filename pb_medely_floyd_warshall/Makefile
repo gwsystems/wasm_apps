@@ -46,9 +46,9 @@ run_native: bin/pb_medely_floyd_warshall.out
 
 bench.csv: bin/pb_medely_floyd_warshall.wasm bin/pb_medely_floyd_warshall.cwasm bin/pb_medely_floyd_warshall.out bin/pb_medely_floyd_warshall.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_medely_floyd_warshall_native       './bin/pb_medely_floyd_warshall.out' \
-	-n pb_medely_floyd_warshall_wasmtime_jit 'wasmtime run bin/pb_medely_floyd_warshall.wasm' \
-	-n pb_medely_floyd_warshall_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_medely_floyd_warshall.cwasm' \
-	-n pb_medely_floyd_warshall_wasm3        'wasm3 bin/pb_medely_floyd_warshall.wasm' \
-	-n pb_medely_floyd_warshall_wamr_int     'iwasm bin/pb_medely_floyd_warshall.wasm' \
-	-n pb_medely_floyd_warshall_wamr_aot     'iwasm bin/pb_medely_floyd_warshall.aot'
+		-n pb_medely_floyd_warshall_native       './bin/pb_medely_floyd_warshall.out' \
+		-n pb_medely_floyd_warshall_wasmtime_jit 'wasmtime run bin/pb_medely_floyd_warshall.wasm' \
+		-n pb_medely_floyd_warshall_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_medely_floyd_warshall.cwasm' \
+		-n pb_medely_floyd_warshall_wasm3        'wasm3 bin/pb_medely_floyd_warshall.wasm' \
+		-n pb_medely_floyd_warshall_wamr_int     'iwasm bin/pb_medely_floyd_warshall.wasm' \
+		-n pb_medely_floyd_warshall_wamr_aot     'iwasm bin/pb_medely_floyd_warshall.aot'

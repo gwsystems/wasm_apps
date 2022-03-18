@@ -46,9 +46,9 @@ run_native: bin/pb_la_solvers_trisolv.out
 
 bench.csv: bin/pb_la_solvers_trisolv.wasm bin/pb_la_solvers_trisolv.cwasm bin/pb_la_solvers_trisolv.out bin/pb_la_solvers_trisolv.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_la_solvers_trisolv_native       './bin/pb_la_solvers_trisolv.out' \
-	-n pb_la_solvers_trisolv_wasmtime_jit 'wasmtime run bin/pb_la_solvers_trisolv.wasm' \
-	-n pb_la_solvers_trisolv_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_trisolv.cwasm' \
-	-n pb_la_solvers_trisolv_wasm3        'wasm3 bin/pb_la_solvers_trisolv.wasm' \
-	-n pb_la_solvers_trisolv_wamr_int     'iwasm bin/pb_la_solvers_trisolv.wasm' \
-	-n pb_la_solvers_trisolv_wamr_aot     'iwasm bin/pb_la_solvers_trisolv.aot'
+		-n pb_la_solvers_trisolv_native       './bin/pb_la_solvers_trisolv.out' \
+		-n pb_la_solvers_trisolv_wasmtime_jit 'wasmtime run bin/pb_la_solvers_trisolv.wasm' \
+		-n pb_la_solvers_trisolv_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_solvers_trisolv.cwasm' \
+		-n pb_la_solvers_trisolv_wasm3        'wasm3 bin/pb_la_solvers_trisolv.wasm' \
+		-n pb_la_solvers_trisolv_wamr_int     'iwasm bin/pb_la_solvers_trisolv.wasm' \
+		-n pb_la_solvers_trisolv_wamr_aot     'iwasm bin/pb_la_solvers_trisolv.aot'

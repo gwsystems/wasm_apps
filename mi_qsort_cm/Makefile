@@ -51,9 +51,9 @@ run_native: bin/mi_qsort_cm.out
 
 bench.csv: bin/mi_qsort_cm.wasm bin/mi_qsort_cm.cwasm bin/mi_qsort_cm.out bin/mi_qsort_cm.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n mi_qsort_cm_native       './bin/mi_qsort_cm.out' \
-	-n mi_qsort_cm_wasmtime_jit 'wasmtime run bin/mi_qsort_cm.wasm' \
-	-n mi_qsort_cm_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_qsort_cm.cwasm' \
-	-n mi_qsort_cm_wasm3        'wasm3 bin/mi_qsort_cm.wasm' \
-	-n mi_qsort_cm_wamr_int     'iwasm bin/mi_qsort_cm.wasm' \
-	-n mi_qsort_cm_wamr_aot     'iwasm bin/mi_qsort_cm.aot'
+		-n mi_qsort_cm_native       './bin/mi_qsort_cm.out' \
+		-n mi_qsort_cm_wasmtime_jit 'wasmtime run bin/mi_qsort_cm.wasm' \
+		-n mi_qsort_cm_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_qsort_cm.cwasm' \
+		-n mi_qsort_cm_wasm3        'wasm3 bin/mi_qsort_cm.wasm' \
+		-n mi_qsort_cm_wamr_int     'iwasm bin/mi_qsort_cm.wasm' \
+		-n mi_qsort_cm_wamr_aot     'iwasm bin/mi_qsort_cm.aot'

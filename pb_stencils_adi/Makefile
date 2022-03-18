@@ -46,9 +46,9 @@ run_native: bin/pb_stencils_adi.out
 
 bench.csv: bin/pb_stencils_adi.wasm bin/pb_stencils_adi.cwasm bin/pb_stencils_adi.out bin/pb_stencils_adi.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_stencils_adi_native       './bin/pb_stencils_adi.out' \
-	-n pb_stencils_adi_wasmtime_jit 'wasmtime run bin/pb_stencils_adi.wasm' \
-	-n pb_stencils_adi_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_stencils_adi.cwasm' \
-	-n pb_stencils_adi_wasm3        'wasm3 bin/pb_stencils_adi.wasm' \
-	-n pb_stencils_adi_wamr_int     'iwasm bin/pb_stencils_adi.wasm' \
-	-n pb_stencils_adi_wamr_aot     'iwasm bin/pb_stencils_adi.aot'
+		-n pb_stencils_adi_native       './bin/pb_stencils_adi.out' \
+		-n pb_stencils_adi_wasmtime_jit 'wasmtime run bin/pb_stencils_adi.wasm' \
+		-n pb_stencils_adi_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_stencils_adi.cwasm' \
+		-n pb_stencils_adi_wasm3        'wasm3 bin/pb_stencils_adi.wasm' \
+		-n pb_stencils_adi_wamr_int     'iwasm bin/pb_stencils_adi.wasm' \
+		-n pb_stencils_adi_wamr_aot     'iwasm bin/pb_stencils_adi.aot'

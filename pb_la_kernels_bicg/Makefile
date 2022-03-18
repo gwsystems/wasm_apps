@@ -46,9 +46,9 @@ run_native: bin/pb_la_kernels_bicg.out
 
 bench.csv: bin/pb_la_kernels_bicg.wasm bin/pb_la_kernels_bicg.cwasm bin/pb_la_kernels_bicg.out bin/pb_la_kernels_bicg.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_la_kernels_bicg_native       './bin/pb_la_kernels_bicg.out' \
-	-n pb_la_kernels_bicg_wasmtime_jit 'wasmtime run bin/pb_la_kernels_bicg.wasm' \
-	-n pb_la_kernels_bicg_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_kernels_bicg.cwasm' \
-	-n pb_la_kernels_bicg_wasm3        'wasm3 bin/pb_la_kernels_bicg.wasm' \
-	-n pb_la_kernels_bicg_wamr_int     'iwasm bin/pb_la_kernels_bicg.wasm' \
-	-n pb_la_kernels_bicg_wamr_aot     'iwasm bin/pb_la_kernels_bicg.aot'
+		-n pb_la_kernels_bicg_native       './bin/pb_la_kernels_bicg.out' \
+		-n pb_la_kernels_bicg_wasmtime_jit 'wasmtime run bin/pb_la_kernels_bicg.wasm' \
+		-n pb_la_kernels_bicg_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_kernels_bicg.cwasm' \
+		-n pb_la_kernels_bicg_wasm3        'wasm3 bin/pb_la_kernels_bicg.wasm' \
+		-n pb_la_kernels_bicg_wamr_int     'iwasm bin/pb_la_kernels_bicg.wasm' \
+		-n pb_la_kernels_bicg_wamr_aot     'iwasm bin/pb_la_kernels_bicg.aot'

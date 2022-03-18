@@ -49,8 +49,8 @@ run_native: bin/mi_blowfish.out
 bench.csv: bin/mi_blowfish.wasm bin/mi_blowfish.cwasm bin/mi_blowfish.out bin/mi_blowfish.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
 	-n mi_blowfish_native       './bin/mi_blowfish.out ${ARGS}' \
-	-n mi_blowfish_wasmtime_jit 'wasmtime run bin/mi_blowfish.wasm -- ${ARGS}' \
-	-n mi_blowfish_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_blowfish.cwasm -- ${ARGS}' \
+	-n mi_blowfish_wasmtime_jit 'wasmtime run --dir=. bin/mi_blowfish.wasm -- ${ARGS}' \
+	-n mi_blowfish_wasmtime_aot 'wasmtime run --dir=. --allow-precompiled bin/mi_blowfish.cwasm -- ${ARGS}' \
 	-n mi_blowfish_wasm3        'wasm3 bin/mi_blowfish.wasm ${ARGS}' \
 	-n mi_blowfish_wamr_int     'iwasm --dir=. --dir=/dev bin/mi_blowfish.wasm ${ARGS}' \
 	-n mi_blowfish_wamr_aot     'iwasm --dir=. --dir=/dev bin/mi_blowfish.aot ${ARGS}'

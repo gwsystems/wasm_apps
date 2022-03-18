@@ -48,10 +48,10 @@ run_native: bin/app_tinycrypt.out
 	./bin/app_tinycrypt.out
 
 bench.csv: bin/app_tinycrypt.wasm bin/app_tinycrypt.cwasm bin/app_tinycrypt.out bin/app_tinycrypt.aot
-	hyperfine -N -w 10 --export-csv bench.csv \
+	hyperfine -N -w 1 -r 2 --export-csv bench.csv \
 	-n app_tinycrypt_native       './bin/app_tinycrypt.out' \
 	-n app_tinycrypt_wasmtime_jit 'wasmtime run bin/app_tinycrypt.wasm' \
 	-n app_tinycrypt_wasmtime_aot 'wasmtime run --allow-precompiled bin/app_tinycrypt.cwasm' \
-	-n app_tinycrypt_wamr_int     'echo "40" | iwasm bin/app_tinycrypt.wasm' \
-	-n app_tinycrypt_wamr_aot     'echo "40" | iwasm bin/app_tinycrypt.aot' \
+	-n app_tinycrypt_wamr_int     'iwasm bin/app_tinycrypt.wasm' \
+	-n app_tinycrypt_wamr_aot     'iwasm bin/app_tinycrypt.aot' \
 	-n app_tinycrypt_wasm3        'wasm3 bin/app_tinycrypt.wasm'

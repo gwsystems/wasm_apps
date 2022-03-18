@@ -46,9 +46,9 @@ run_native: bin/pb_la_kernels_doitgen.out
 
 bench.csv: bin/pb_la_kernels_doitgen.wasm bin/pb_la_kernels_doitgen.cwasm bin/pb_la_kernels_doitgen.out bin/pb_la_kernels_doitgen.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n pb_la_kernels_doitgen_native       './bin/pb_la_kernels_doitgen.out' \
-	-n pb_la_kernels_doitgen_wasmtime_jit 'wasmtime run bin/pb_la_kernels_doitgen.wasm' \
-	-n pb_la_kernels_doitgen_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_kernels_doitgen.cwasm' \
-	-n pb_la_kernels_doitgen_wasm3        'wasm3 bin/pb_la_kernels_doitgen.wasm' \
-	-n pb_la_kernels_doitgen_wamr_int     'iwasm bin/pb_la_kernels_doitgen.wasm' \
-	-n pb_la_kernels_doitgen_wamr_aot     'iwasm bin/pb_la_kernels_doitgen.aot'
+		-n pb_la_kernels_doitgen_native       './bin/pb_la_kernels_doitgen.out' \
+		-n pb_la_kernels_doitgen_wasmtime_jit 'wasmtime run bin/pb_la_kernels_doitgen.wasm' \
+		-n pb_la_kernels_doitgen_wasmtime_aot 'wasmtime run --allow-precompiled bin/pb_la_kernels_doitgen.cwasm' \
+		-n pb_la_kernels_doitgen_wasm3        'wasm3 bin/pb_la_kernels_doitgen.wasm' \
+		-n pb_la_kernels_doitgen_wamr_int     'iwasm bin/pb_la_kernels_doitgen.wasm' \
+		-n pb_la_kernels_doitgen_wamr_aot     'iwasm bin/pb_la_kernels_doitgen.aot'
