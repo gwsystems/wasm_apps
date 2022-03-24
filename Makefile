@@ -73,6 +73,7 @@ all.out: \
 	dist/pb_stencils_seidel_2d.out \
 	dist/resize_image.out \
 	dist/trap_divzero.wasm \
+	dist/stack_overflow.wasm \
 	dist/license_plate_detection.out \
 	dist/gps_ekf.out \
 	# dist/app_nn.out \
@@ -230,6 +231,7 @@ clean:
 	make -C sod clean
 	make -C TinyEKF -f wasm.mk clean
 	make -C traps clean
+	make -C stack_overflow clean
 
 bench.csv:
 	rm -f bench.csv
@@ -876,3 +878,12 @@ dist/trap_divzero.out: dist
 dist/trap_divzero.wasm: dist
 	make -C traps trap_divzero.wasm
 	cp ./traps/trap_divzero.wasm ./dist/trap_divzero.wasm
+
+
+dist/stack_overflow.out: dist
+	make -C stack_overflow stack_overflow.out
+	cp ./stack_overflow/stack_overflow.out ./dist/stack_overflow.out
+
+dist/stack_overflow.wasm: dist
+	make -C stack_overflow stack_overflow.wasm
+	cp ./stack_overflow/stack_overflow.wasm ./dist/stack_overflow.wasm
