@@ -48,9 +48,9 @@ run_native: exit.out
 
 bench.csv: exit.wasm exit.cwasm exit.out exit.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n exit_native       './exit.out' \
-	-n exit_wasmtime_jit 'wasmtime run exit.wasm' \
-	-n exit_wasmtime_aot 'wasmtime run --allow-precompiled exit.cwasm' \
-	-n exit_wasm3        'wasm3 exit.wasm' \
-	-n exit_wamr_int     'iwasm exit.wasm' \
-	-n exit_wamr_aot     'iwasm exit.aot'
+		-n exit_native       './exit.out' \
+		-n exit_wasmtime_jit 'wasmtime run exit.wasm' \
+		-n exit_wasmtime_aot 'wasmtime run --allow-precompiled exit.cwasm' \
+		-n exit_wasm3        'wasm3 exit.wasm' \
+		-n exit_wamr_int     'iwasm exit.wasm' \
+		-n exit_wamr_aot     'iwasm exit.aot'

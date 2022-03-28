@@ -46,9 +46,9 @@ run_native: bin/mi_dijkstra_cm.out
 
 bench.csv: bin/mi_dijkstra_cm.out bin/mi_dijkstra_cm.wasm bin/mi_dijkstra_cm.cwasm bin/mi_dijkstra_cm.aot
 	hyperfine -N -w 10 --export-csv bench.csv \
-	-n mi_dijkstra_cm_native       './bin/mi_dijkstra_cm.out' \
-	-n mi_dijkstra_cm_wasmtime_jit 'wasmtime run bin/mi_dijkstra_cm.wasm' \
-	-n mi_dijkstra_cm_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_dijkstra_cm.cwasm' \
-	-n mi_dijkstra_cm_wasm3        'wasm3 bin/mi_dijkstra_cm.wasm' \
-	-n mi_dijkstra_cm_wamr_int     'iwasm bin/mi_dijkstra_cm.wasm' \
-	-n mi_dijkstra_cm_wamr_aot     'iwasm bin/mi_dijkstra_cm.aot' \
+		-n mi_dijkstra_cm_native       './bin/mi_dijkstra_cm.out' \
+		-n mi_dijkstra_cm_wasmtime_jit 'wasmtime run bin/mi_dijkstra_cm.wasm' \
+		-n mi_dijkstra_cm_wasmtime_aot 'wasmtime run --allow-precompiled bin/mi_dijkstra_cm.cwasm' \
+		-n mi_dijkstra_cm_wasm3        'wasm3 bin/mi_dijkstra_cm.wasm' \
+		-n mi_dijkstra_cm_wamr_int     'iwasm bin/mi_dijkstra_cm.wasm' \
+		-n mi_dijkstra_cm_wamr_aot     'iwasm bin/mi_dijkstra_cm.aot' \

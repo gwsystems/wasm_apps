@@ -4,3 +4,4 @@ dist/*
 *.out
 *.aot
 bench.csv
+bench
