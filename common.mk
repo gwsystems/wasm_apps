@@ -29,6 +29,9 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
+%.wasm: %.wat
+	wat2wasm $< -o $@
+
 # wasmtime AOT
 %.cwasm: %.wasm
 	wasmtime compile $< -o $@
