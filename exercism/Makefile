@@ -25,4 +25,4 @@ all: \
 
 .PHONY: clean
 clean:
-	rm *.wasm
+	rm -f *.wasm

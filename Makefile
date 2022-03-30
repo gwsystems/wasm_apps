@@ -174,6 +174,7 @@ clean:
 	make -C custom_sqlite clean
 	make -C echo clean
 	make -C empty clean
+	make -C exercism clean
 	make -C exit clean
 	make -C fibonacci clean
 	make -C gocr -f wasm.mk clean
@@ -902,7 +903,6 @@ dist/trap_divzero.wasm: dist
 	make -C traps trap_divzero.wasm
 	cp ./traps/trap_divzero.wasm ./dist/trap_divzero.wasm
 
-
 dist/stack_overflow.out: dist
 	make -C stack_overflow stack_overflow.out
 	cp ./stack_overflow/stack_overflow.out ./dist/stack_overflow.out
@@ -910,3 +910,88 @@ dist/stack_overflow.out: dist
 dist/stack_overflow.wasm: dist
 	make -C stack_overflow stack_overflow.wasm
 	cp ./stack_overflow/stack_overflow.wasm ./dist/stack_overflow.wasm
+
+dist/acronym.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/all-your-base.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/armstrong-numbers.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/bank-account.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/binary-search.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/circular-buffer.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/collatz-conjecture.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/darts.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/difference-of-squares.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/grains.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/hamming.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/hello_world.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/leap.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/nucleotide-count.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/pangram.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/raindrops.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/resistor-color.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/reverse-string.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/rna-transcription.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/triangle.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
+dist/two-fer.wasm: dist
+	make -C exercism $(subst dist/,,$@)
+	cp $(subst dist/,exercism/,$@) $@
+
