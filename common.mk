@@ -29,8 +29,16 @@ WASMCFLAGS+= -mno-simd128 # https://github.com/webassembly/simd
 %.wat: %.wasm
 	wasm2wat $< -o $@
 
+WAT2WASMFLAGS+= --disable-bulk-memory
+WAT2WASMFLAGS+= --disable-multi-value
+WAT2WASMFLAGS+= --disable-mutable-globals
+WAT2WASMFLAGS+= --disable-reference-types
+WAT2WASMFLAGS+= --disable-saturating-float-to-int
+WAT2WASMFLAGS+= --disable-sign-extension
+WAT2WASMFLAGS+= --disable-simd
+
 %.wasm: %.wat
-	wat2wasm $< -o $@
+	wat2wasm ${WAT2WASMFLAGS} $< -o $@
 
 # wasmtime AOT
 %.cwasm: %.wasm
