@@ -995,3 +995,7 @@ dist/two-fer.wasm: dist
 	make -C exercism $(subst dist/,,$@)
 	cp $(subst dist/,exercism/,$@) $@
 
+dist/start.wasm: dist
+	make -C start $(subst dist/,,$@)
+	cp $(subst dist/,start/,$@) $@
+
