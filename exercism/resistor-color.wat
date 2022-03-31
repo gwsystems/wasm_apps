@@ -1,6 +1,4 @@
 (module
-  (import "console" "log_mem_as_utf8" (func $log_mem_as_utf8 (param $byteOffset i32) (param $length i32)))
-  
   (memory (export "mem") 1)
   (data $colors "black,brown,red,orange,yellow,green,blue,violet,grey,white")
   
@@ -64,8 +62,6 @@
     (local $s2Cursor i32)
     (local.set $s1Cursor (local.get $s1))
     (local.set $s2Cursor (local.get $s2))
-    (call $log_mem_as_utf8 (local.get $s1) (local.get $n))
-    (call $log_mem_as_utf8 (local.get $s2) (local.get $n))
     (if (i32.gt_s (local.get $n) (i32.const 0)) (then
       (loop
         (if (i32.ne (i32.load8_u (local.get $s1Cursor)) (i32.load8_u (local.get $s2Cursor))) (then

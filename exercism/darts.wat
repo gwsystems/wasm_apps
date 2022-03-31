@@ -1,5 +1,4 @@
 (module
-;;   (import "console" "log_f32" (func $log_f32 (param f32)))
   (global $outerCircleRadius f32 (f32.const 10.0))
   (global $middleCircleRadius f32 (f32.const 5.0))
   (global $innerCircleRadius f32 (f32.const 1.0))

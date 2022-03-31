@@ -1,5 +1,4 @@
 (module
-  (import "console" "log_i32_s" (func $log_i32_s (param i32)))
   (memory (export "mem") 1)
   (data $pling "Pling")
   (data $plang "Plang")
