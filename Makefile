@@ -229,10 +229,11 @@ clean:
 	make -C pb_stencils_jacobi_1d clean
 	make -C pb_stencils_jacobi_2d clean
 	make -C pb_stencils_seidel_2d clean
+	make -C stack_overflow clean
+	make -C start clean
 	make -C sod clean
 	make -C TinyEKF -f wasm.mk clean
 	make -C traps clean
-	make -C stack_overflow clean
 
 bench:
 	mkdir -p bench
