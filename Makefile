@@ -1000,3 +1000,7 @@ dist/start.wasm: dist
 	make -C start $(subst dist/,,$@)
 	cp $(subst dist/,start/,$@) $@
 
+dist/unreachable.wasm: dist
+	make -C unreachable $(subst dist/,,$@)
+	cp $(subst dist/,unreachable/,$@) $@
+

@@ -2,6 +2,7 @@
 	(global $counter (mut i32) (i32.const 0))
 
 	(func (export "increment") (result i32)
+		(unreachable)
 		(global.set $counter (i32.add (global.get $counter) (i32.const 1)))
 		(global.get $counter)
 	)
@@ -10,6 +11,6 @@
 		(global.set $counter (i32.const 42))
 	)
 
-	(start $init)
+	;; (start $init)
 	
 )
