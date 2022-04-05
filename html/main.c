@@ -9,7 +9,7 @@
     "</html>"                     \
     ""
 
-int main(void) {
+int main(int argc, char **argv) {
     printf(HTML);
     exit(EXIT_SUCCESS);
 }

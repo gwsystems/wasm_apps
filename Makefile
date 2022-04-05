@@ -178,6 +178,7 @@ clean:
 	make -C exit clean
 	make -C fibonacci clean
 	make -C gocr -f wasm.mk clean
+	make -C html clean
 	make -C mi_adpcm clean
 	make -C mi_basic_math clean
 	make -C mi_bitcount clean
