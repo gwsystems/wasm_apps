@@ -960,6 +960,10 @@ dist/hello_world.wasm: dist
 	make -C exercism $(subst dist/,,$@)
 	cp $(subst dist/,exercism/,$@) $@
 
+dist/html.wasm: dist
+	make -C html $(subst dist/,,$@)
+	cp $(subst dist/,html/,$@) $@
+
 dist/leap.wasm: dist
 	make -C exercism $(subst dist/,,$@)
 	cp $(subst dist/,exercism/,$@) $@
