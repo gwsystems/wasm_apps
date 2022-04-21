@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 uint32_t
 fib(uint32_t n)
@@ -12,7 +13,12 @@ int
 main(int argc, char **argv)
 {
 	uint32_t n = 0;
-	scanf("%u", &n);
+
+	if (argc > 1) {
+		n = atoi(argv[1]);
+	} else {
+		scanf("%u", &n);
+	}
 
 	uint32_t result = fib(n);
 	printf("%u\n", result);
