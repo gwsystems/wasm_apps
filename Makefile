@@ -147,6 +147,7 @@ all.wasm: \
 	dist/license_plate_detection.wasm \
 	dist/gps_ekf.wasm \
 	dist/trap_divzero.wasm \
+	dist/scratch_storage.wasm \
 	# dist/app_nn.wasm \
 	# dist/custom_sqlite.wasm \
 	# dist/mi_patricia.wasm \
@@ -235,6 +236,7 @@ clean:
 	make -C sod clean
 	make -C TinyEKF -f wasm.mk clean
 	make -C traps clean
+	make -C scratch_storage clean
 
 bench:
 	mkdir -p bench
@@ -886,6 +888,14 @@ dist/license_plate_detection.out: dist
 dist/license_plate_detection.wasm: dist
 	make -C sod license_plate_detection.wasm
 	cp ./sod/license_plate_detection.wasm ./dist/license_plate_detection.wasm
+
+dist/scratch_storage_set.wasm: dist
+	make -C scratch_storage scratch_storage_set.wasm
+	cp ./scratch_storage/scratch_storage_set.wasm ./dist/scratch_storage_set.wasm
+
+dist/scratch_storage_get.wasm: dist
+	make -C scratch_storage scratch_storage_get.wasm
+	cp ./scratch_storage/scratch_storage_get.wasm ./dist/scratch_storage_get.wasm
 
 # TODO: speechtotext
 
