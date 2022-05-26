@@ -897,6 +897,14 @@ dist/scratch_storage_get.wasm: dist
 	make -C scratch_storage scratch_storage_get.wasm
 	cp ./scratch_storage/scratch_storage_get.wasm ./dist/scratch_storage_get.wasm
 
+dist/scratch_storage_delete.wasm: dist
+	make -C scratch_storage scratch_storage_delete.wasm
+	cp ./scratch_storage/scratch_storage_delete.wasm ./dist/scratch_storage_delete.wasm
+
+dist/scratch_storage_upsert.wasm: dist
+	make -C scratch_storage scratch_storage_upsert.wasm
+	cp ./scratch_storage/scratch_storage_upsert.wasm ./dist/scratch_storage_upsert.wasm
+
 # TODO: speechtotext
 
 dist/gps_ekf.out: dist
