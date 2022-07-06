@@ -325,7 +325,7 @@ bench/%.csv: bench
 	cp $*/bench.csv bench/$*.csv
 
 dist:
-	mkdir dist
+	mkdir -p dist
 
 # TODO: app_nn
 
