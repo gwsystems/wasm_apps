@@ -72,10 +72,11 @@ all.out: \
 	dist/pb_stencils_jacobi_2d.out \
 	dist/pb_stencils_seidel_2d.out \
 	dist/resize_image.out \
-	dist/trap_divzero.wasm \
-	dist/stack_overflow.wasm \
+	dist/trap_divzero.out \
+	dist/stack_overflow.out \
 	dist/license_plate_detection.out \
 	dist/gps_ekf.out \
+	dist/depth_to_xyz.out \
 	# dist/app_nn.out \
 
 
@@ -147,6 +148,8 @@ all.wasm: \
 	dist/license_plate_detection.wasm \
 	dist/gps_ekf.wasm \
 	dist/trap_divzero.wasm \
+	dist/stack_overflow.wasm \
+	dist/depth_to_xyz.wasm \
 	# dist/app_nn.wasm \
 	# dist/custom_sqlite.wasm \
 	# dist/mi_patricia.wasm \
@@ -413,6 +416,14 @@ dist/cifar10.out: dist
 dist/cifar10.wasm: dist
 	make -C CMSIS_5_NN cifar10.wasm
 	cp ./CMSIS_5_NN/cifar10.wasm ./dist/cifar10.wasm
+
+dist/depth_to_xyz.wasm: dist
+	make -C cmu-sod out/depth_to_xyz.wasm
+	cp ./cmu-sod/out/depth_to_xyz.wasm ./dist/depth_to_xyz.wasm
+
+dist/depth_to_xyz.out: dist
+	make -C cmu-sod out/depth_to_xyz
+	cp ./cmu-sod/out/depth_to_xyz ./dist/depth_to_xyz.out
 
 dist/echo.out: dist
 	make -C echo echo.out
