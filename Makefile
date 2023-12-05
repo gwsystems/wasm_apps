@@ -75,6 +75,7 @@ all.out: \
 	dist/trap_divzero.out \
 	dist/stack_overflow.out \
 	dist/license_plate_detection.out \
+	dist/cnn_face_detection.out \
 	dist/gps_ekf.out \
 	dist/depth_to_xyz.out \
 	# dist/app_nn.out \
@@ -146,6 +147,7 @@ all.wasm: \
 	dist/pb_stencils_seidel_2d.wasm \
 	dist/resize_image.wasm \
 	dist/license_plate_detection.wasm \
+	dist/cnn_face_detection.wasm \
 	dist/gps_ekf.wasm \
 	dist/trap_divzero.wasm \
 	dist/stack_overflow.wasm \
@@ -305,6 +307,7 @@ BENCHMARKS= \
 	bench/pb_stencils_jacobi_1d.csv \
 	bench/pb_stencils_jacobi_2d.csv \
 	bench/license_plate_detection.csv \
+	bench/cnn_face_detection.csv \
 	bench/resize_image.csv \
 	bench/traps.csv
 
@@ -318,6 +321,10 @@ bench/TinyEKF.csv: bench
 bench/license_plate_detection.csv: bench
 	make -C sod license_plate_detection.bench.csv
 	cp sod/license_plate_detection.bench.csv $@
+
+bench/cnn_face_detection.csv: bench
+	make -C sod cnn_face_detection.bench.csv
+	cp sod/cnn_face_detection.bench.csv $@
 
 bench/resize_image.csv: bench
 	make -C sod resize_image.bench.csv
@@ -897,6 +904,14 @@ dist/license_plate_detection.out: dist
 dist/license_plate_detection.wasm: dist
 	make -C sod license_plate_detection.wasm
 	cp ./sod/license_plate_detection.wasm ./dist/license_plate_detection.wasm
+
+dist/cnn_face_detection.out: dist
+	make -C sod cnn_face_detection.out
+	cp ./sod/cnn_face_detection.out ./dist/cnn_face_detection.out
+
+dist/cnn_face_detection.wasm: dist
+	make -C sod cnn_face_detection.wasm
+	cp ./sod/cnn_face_detection.wasm ./dist/cnn_face_detection.wasm
 
 # TODO: speechtotext
 
