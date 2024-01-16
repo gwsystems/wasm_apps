@@ -96,6 +96,7 @@ all.wasm: \
 	dist/empty.wasm \
 	dist/exit.wasm \
 	dist/fibonacci.wasm \
+	dist/hash.wasm \
 	dist/gocr.wasm \
 	dist/mi_adpcm.wasm \
 	dist/mi_basic_math.wasm \
@@ -182,6 +183,7 @@ clean:
 	make -C exercism clean
 	make -C exit clean
 	make -C fibonacci clean
+	make -C hash clean
 	make -C gocr -f wasm.mk clean
 	make -C html clean
 	make -C mi_adpcm clean
@@ -463,6 +465,10 @@ dist/fibonacci.out: dist
 dist/fibonacci.wasm: dist
 	make -C fibonacci fibonacci.wasm
 	cp ./fibonacci/fibonacci.wasm ./dist/fibonacci.wasm
+
+dist/hash.wasm: dist
+	make -C hash hash.wasm
+	cp ./hash/hash.wasm ./dist/hash.wasm
 
 dist/gocr.out: dist
 	make -C gocr -f wasm.mk gocr.out
