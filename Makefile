@@ -924,6 +924,14 @@ dist/cnn_face_detection.wasm: dist
 	make -C sod cnn_face_detection.wasm
 	cp ./sod/cnn_face_detection.wasm ./dist/cnn_face_detection.wasm
 
+dist/get_jpeg_resolution.out: dist
+	make -C tenant_preprocess get_jpeg_resolution.out
+	cp ./tenant_preprocess/get_jpeg_resolution.out ./dist/get_jpeg_resolution.out
+
+dist/get_jpeg_resolution.wasm: dist
+	make -C tenant_preprocess get_jpeg_resolution.wasm
+	cp ./tenant_preprocess/get_jpeg_resolution.wasm ./dist/get_jpeg_resolution.wasm
+
 # TODO: speechtotext
 
 dist/gps_ekf.out: dist
