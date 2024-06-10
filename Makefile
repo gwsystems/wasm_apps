@@ -97,6 +97,7 @@ all.wasm: \
 	dist/exit.wasm \
 	dist/fibonacci.wasm \
 	dist/hash.wasm \
+	dist/trap.wasm \
 	dist/dummy_tpcc.wasm \
 	dist/gocr.wasm \
 	dist/mi_adpcm.wasm \
@@ -185,6 +186,7 @@ clean:
 	make -C exit clean
 	make -C fibonacci clean
 	make -C hash clean
+	make -C trap clean
 	make -C dummy_tpcc clean
 	make -C gocr -f wasm.mk clean
 	make -C html clean
@@ -471,6 +473,9 @@ dist/fibonacci.wasm: dist
 dist/hash.wasm: dist
 	make -C hash hash.wasm
 	cp ./hash/hash.wasm ./dist/hash.wasm
+dist/trap.wasm: dist
+	make -C trap trap.wasm
+	cp ./trap/trap.wasm ./dist/trap.wasm
 dist/dummy_tpcc.wasm: dist
 	make -C dummy_tpcc dummy_tpcc.wasm
 	cp ./dummy_tpcc/dummy_tpcc.wasm ./dist/dummy_tpcc.wasm
