@@ -21,3 +21,6 @@
 [submodule "cmu-sod"]
 	path = cmu-sod
 	url = https://github.com/gwsystems/cmu-sod
+[submodule "vision"]
+	path = vision
+	url = https://github.com/lyuxiaosu/vision
