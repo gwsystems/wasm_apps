@@ -149,6 +149,9 @@ all.wasm: \
 	dist/pb_stencils_jacobi_2d.wasm \
 	dist/pb_stencils_seidel_2d.wasm \
 	dist/resize_image.wasm \
+	dist/sift.wasm \
+	dist/multi_ncut.wasm \
+	dist/mser.wasm \
 	dist/license_plate_detection.wasm \
 	dist/cnn_face_detection.wasm \
 	dist/gps_ekf.wasm \
@@ -912,6 +915,18 @@ dist/resize_image.out: dist
 dist/resize_image.wasm: dist
 	make -C sod resize_image.wasm
 	cp ./sod/resize_image.wasm ./dist/resize_image.wasm
+
+dist/sift.wasm: dist
+	cd vision/benchmarks/sift/data/test && make wasm-run
+	cp vision/benchmarks/sift/data/test/sift.wasm ./dist/sift.wasm
+
+dist/multi_ncut.wasm: dist
+	cd vision/benchmarks/multi_ncut/data/test && make wasm-run
+	cp vision/benchmarks/multi_ncut/data/test/multi_ncut.wasm ./dist/multi_ncut.wasm
+
+dist/mser.wasm: dist
+	cd vision/benchmarks/mser/data/test && make wasm-run
+	cp vision/benchmarks/mser/data/test/mser.wasm ./dist/mser.wasm
 
 dist/license_plate_detection.out: dist
 	make -C sod license_plate_detection.out
