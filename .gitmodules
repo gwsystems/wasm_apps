@@ -24,3 +24,4 @@
 [submodule "vision"]
 	path = vision
 	url = https://github.com/lyuxiaosu/vision.git
+	branch = master
