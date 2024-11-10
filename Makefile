@@ -152,6 +152,8 @@ all.wasm: \
 	dist/sift.wasm \
 	dist/multi_ncut.wasm \
 	dist/mser.wasm \
+	dist/disparity.wasm \
+	dist/tracking.wasm \
 	dist/license_plate_detection.wasm \
 	dist/cnn_face_detection.wasm \
 	dist/gps_ekf.wasm \
@@ -919,6 +921,14 @@ dist/resize_image.wasm: dist
 dist/sift.wasm: dist
 	cd vision/benchmarks/sift/data/test && make wasm-run
 	cp vision/benchmarks/sift/data/test/sift.wasm ./dist/sift.wasm
+
+dist/tracking.wasm: dist
+	cd vision/benchmarks/tracking/data/test && make wasm-run
+	cp vision/benchmarks/tracking/data/test/tracking.wasm ./dist/tracking.wasm
+
+dist/disparity.wasm: dist
+	cd vision/benchmarks/disparity/data/test && make wasm-run
+	cp vision/benchmarks/disparity/data/test/disparity.wasm ./dist/disparity.wasm
 
 dist/multi_ncut.wasm: dist
 	cd vision/benchmarks/multi_ncut/data/test && make wasm-run
